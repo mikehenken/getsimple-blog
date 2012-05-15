@@ -10,7 +10,7 @@ i18n_merge($thisfile) || i18n_merge($thisfile, 'en_US');
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.2', 		
+	'1.0', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -993,6 +993,12 @@ function auto_import()
 	}
 }
 
+/** 
+* RSS Feed Auto Importer
+* Auto imports RSS feeds. Can be launched by a cron job 
+* 
+* @return void
+*/  
 /*******************************************************
  * @function nm_show_page
  * param $index - page index (pagination)
@@ -1035,14 +1041,14 @@ function show_posts_page($index=0)
 	}
 }
 
-
-
-/*******************************************************
- * @function nm_show_navigation
- * param $index - current page index
- * param $total - total number of subpages
- * @action provides links to navigate between subpages
- */
+/** 
+* Blog posts navigation (pagination)
+* 
+* @param $index the current page index
+* @param $total total number of pages
+* @param $count current post
+* @return void
+*/  
 function show_blog_navigation($index, $total, $count) 
 {
 	$Blog = new Blog;
