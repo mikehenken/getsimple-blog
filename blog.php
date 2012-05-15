@@ -652,8 +652,8 @@ function savePost()
 function blog_display_posts($content) 
 {
 	$Blog = new Blog;
-	$slug = "index";
-	$blog_slug = $Blog->getSettingsData("blogurl");
+	$slug = base64_encode(return_page_slug());
+	$blog_slug = base64_encode($Blog->getSettingsData("blogurl"));
 	if($slug == $blog_slug)
 	{
 		if(isset($_GET['post']))
@@ -691,7 +691,7 @@ function blog_display_posts($content)
 	}
 	else
 	{
-		echo $content;
+		return $content;
 	}
 }
 
