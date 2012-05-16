@@ -10,7 +10,7 @@ i18n_merge($thisfile) || i18n_merge($thisfile, 'en_US');
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.0', 		
+	'1.0.1', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -41,12 +41,12 @@ function showAdminNav()
 		<h3  class="floated"><?php i18n(BLOGFILE.'/PLUGIN_TITLE'); ?></h3>
 		<div class="edit-nav clearfix">
 			<p>
-				<a href="load.php?id=blog&help"><?php i18n(BLOGFILE.'/HELP'); ?></a>
-				<a href="load.php?id=blog&settings"><?php i18n(BLOGFILE.'/SETTINGS'); ?></a>
-				<a href="load.php?id=blog&auto_importer"><?php i18n(BLOGFILE.'/RSS_FEEDS'); ?></a>
-				<a href="load.php?id=blog&categories"><?php i18n(BLOGFILE.'/CATEGORIES'); ?></a>
-				<a href="load.php?id=blog&create_post"><?php i18n(BLOGFILE.'/CREATE_POST'); ?></a>
-				<a href="load.php?id=blog"><?php i18n(BLOGFILE.'/MANAGE_POSTS'); ?></a>
+				<a href="load.php?id=blog&help" <?php echo (isset($_GET['help']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/HELP'); ?></a>
+				<a href="load.php?id=blog&settings" <?php echo (isset($_GET['settings']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/SETTINGS'); ?></a>
+				<a href="load.php?id=blog&auto_importer" <?php echo (isset($_GET['auto_importer']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/RSS_FEEDS'); ?></a>
+				<a href="load.php?id=blog&categories" <?php echo (isset($_GET['categories']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CATEGORIES'); ?></a>
+				<a href="load.php?id=blog&create_post" <?php echo (isset($_GET['create_post']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CREATE_POST'); ?></a>
+				<a href="load.php?id=blog&manage" <?php echo (isset($_GET['manage']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/MANAGE_POSTS'); ?></a>
 			</p>
 		</div>
 	</div>
@@ -182,15 +182,15 @@ function show_posts_admin()
 	$all_posts = $Blog->listPosts();
 	if($all_posts == false)
 	{
-		echo '<strong>There are no posts yet. <a href="load.php?id=blog&create_post">Click Here To Create One</a>';
+		echo '<strong>'.i18n_r(BLOGFILE.'/NO_POSTS').'. <a href="load.php?id=blog&create_post">'.i18n_r(BLOGFILE.'/CLICK_TO_CREATE').'</a>';
 	}
 	else
 	{
 		?>
 		<table class="edittable highlight paginate">
 			<tr>
-				<th>Page Title</th>
-				<th style="text-align:right;" >Date</th>
+				<th><?php i18n(BLOGFILE.'/PAGE_TITLE'); ?></th>
+				<th style="text-align:right;" ><?php i18n(BLOGFILE.'/DATE'); ?></th>
 				<th></th>
 			</tr>
 		<?php
@@ -317,6 +317,16 @@ function show_settings_admin()
 		</div>
 		<div class="clear"></div>
 		<div class="leftsec">
+			<p>
+				<label for="posts_per_page"><?php i18n(BLOGFILE.'/DISPLAY_TAGS_UNDER_POST'); ?>:</label>
+				<input name="show_tags" type="radio" value="Y" <?php if ($Blog->getSettingsData("displaytags") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="show_tags" type="radio" value="N" <?php if ($Blog->getSettingsData("displaytags") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
 			<p>
 				<label for="posts_per_page"><?php i18n(BLOGFILE.'/DISPLAY_TAGS_UNDER_POST'); ?>:</label>
 				<input name="show_tags" type="radio" value="Y" <?php if ($Blog->getSettingsData("displaytags") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
@@ -733,7 +743,7 @@ function show_blog_post($slug, $excerpt=false)
 		}
 		if(isset($_GET['post']))
 		{
-			echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; Go back to the previous page</a></p>';
+			echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; '.i18n_r(BLOGFILE.'/GO_BACK').'</a></p>';
 		}
 		?>
 	</p>
@@ -796,7 +806,7 @@ function show_blog_category($category)
 	}
 	if($count < 1)
 	{
-		echo '<p class="blog_category_noposts">There are no posts found.</p>';
+		echo '<p class="blog_category_noposts">'.i18n_r(BLOGFILE.'/NO_POSTS').'</p>';
 	}
 }
 
@@ -982,7 +992,7 @@ function auto_import()
 		        $post_data['private']       = '';
 		        $post_data['tags']          = '';
 		        $post_data['category']      = $rss_category;
-		        $post_data['content']       = $item['summary'].'<p class="blog_auto_import_readmore"><a href="'.$item['link'].'" target="_blank">Read The Full Article</a></p>';
+		        $post_data['content']       = $item['summary'].'<p class="blog_auto_import_readmore"><a href="'.$item['link'].'" target="_blank">'.i18n_r(BLOGFILE.'/READ_FULL_ARTICLE').'</a></p>';
 		        $post_data['excerpt']       = '';
 		        $post_data['thumbnail']     = '';
 		        $post_data['current_slug']  = '';
@@ -1008,17 +1018,17 @@ function show_posts_page($index=0)
 {
 	$Blog = new Blog;
 	$posts = $Blog->listPosts();
-	$pages = array_chunk($posts, intval($Blog->getSettingsData("postperpage")), TRUE);
-	if (is_numeric($index) && $index >= 0 && $index < sizeof($pages))
+	if(!empty($posts))
 	{
-		$posts = $pages[$index];
-	}
-	else
-	{
-		$posts = array();	
-	}
-	if (!empty($posts)) 
-	{
+		$pages = array_chunk($posts, intval($Blog->getSettingsData("postperpage")), TRUE);
+		if (is_numeric($index) && $index >= 0 && $index < sizeof($pages))
+		{
+			$posts = $pages[$index];
+		}
+		else
+		{
+			$posts = array();	
+		}
 		$count = 0;
 		foreach ($posts as $file)
 		{
@@ -1068,7 +1078,7 @@ function show_blog_navigation($index, $total, $count)
 		?>
 			<div class="right">
 			<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
-				<?php i18n(BLOGFILE.'/RSS_LOCATION'); ?> &rarr;
+				<?php i18n(BLOGFILE.'/NEWER_POSTS'); ?> &rarr;
 			</a>
 			</div>
 		<?php
@@ -1085,7 +1095,7 @@ function show_help_admin()
 		<?php i18n(BLOGFILE.'/PLUGIN_TITLE'); ?> <?php i18n(BLOGFILE.'/HELP'); ?>
 	</h3>
 
-	<h2 style="font-size:16px;">Front End Functions</h2>
+	<h2 style="font-size:16px;"><?php i18n(BLOGFILE.'/FRONT_END_FUNCTIONS'); ?></h2>
 	<p>
 		<label><?php i18n(BLOGFILE.'/HELP_CATEGORIES'); ?><?php i18n(BLOGFILE.'/RSS_LOCATION'); ?>:</label>
 		<?php highlight_string('<?php show_blog_categories(); ?>'); ?>

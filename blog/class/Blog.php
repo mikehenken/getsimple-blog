@@ -24,11 +24,11 @@ class Blog
 			$create_post_path = mkdir(BLOGPOSTSFOLDER);
 			if($create_post_path)
 			{
-				echo '<div class="updated">data/blog_posts Directory Succesfully Created</div>';
+				echo '<div class="updated">'.i18n_r(BLOGFILE.'/DATA_BLOG_DIR').'</div>';
 			}
 			else
 			{
-				echo '<div class="error"><strong>The data/blog_posts folder could not be created!</strong><br/>You are going to have to create this directory yourelf for the plugin to work properly</div>';
+				echo '<div class="error"><strong>'.i18n_r(BLOGFILE.'/DATA_BLOG_DIR_ERR').'</strong><br/>'.i18n_r(BLOGFILE.'/DATA_BLOG_DIR_ERR_HINT').'</div>';
 			}
 		}
 		if(!file_exists(BLOGCATEGORYFILE))
@@ -37,11 +37,11 @@ class Blog
 			$create_category_file = XMLsave($xml, BLOGCATEGORYFILE);
 			if($create_category_file)
 			{
-				echo '<div class="updated">data/other/blog_categories.xml Directory Succesfully Created</div>';
+				echo '<div class="updated">'.i18n_r(BLOGFILE.'/DATA_BLOG_CATEGORIES').'</div>';
 			}
 			else
 			{
-				echo '<div class="error"><strong>The data/blog_posts folder could not be created!</strong><br/>You are going to have to create this directory yourelf for the plugin to work properly</div>';
+				echo '<div class="error"><strong>'.i18n_r(BLOGFILE.'/DATA_BLOG_CATEGORIES_ERR').'</strong></div>';
 			}
 		}
 		if(!file_exists(BLOGRSSFILE))
@@ -50,11 +50,11 @@ class Blog
 			$create_rss_file = XMLsave($xml, BLOGRSSFILE);
 			if($create_rss_file)
 			{
-				echo '<div class="updated">data/other/blog_rss.xml File Succesfully Created</div>';
+				echo '<div class="updated">'.i18n_r(BLOGFILE.'/DATA_BLOG_RSS').'</div>';
 			}
 			else
 			{
-				echo '<div class="error"><strong>The data/rss file could not be created!</strong><br/>You are going to have to create this directory yourelf for the plugin to work properly</div>';
+				echo '<div class="error"><strong>'.i18n_r(BLOGFILE.'/DATA_BLOG_RSS_ERR').'</strong></div>';
 			}
 		}
 		if(!file_exists(BLOGSETTINGS))
@@ -70,14 +70,6 @@ class Blog
 			$auto_importer_pass = 'passphrase';
 			$display_tags = 'Y';
 			$create_rss_file = $this->saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags);
-			if($create_rss_file)
-			{
-				echo '<div class="updated">data/other/blog_rss.xml File Succesfully Created</div>';
-			}
-			else
-			{
-				echo '<div class="error"><strong>The data/rss file could not be created!</strong><br/>You are going to have to create this directory yourelf for the plugin to work properly</div>';
-			}
 		}
 	}
 
