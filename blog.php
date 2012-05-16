@@ -10,7 +10,7 @@ i18n_merge($thisfile) || i18n_merge($thisfile, 'en_US');
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.0.1', 		
+	'1.0.2', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
