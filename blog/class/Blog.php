@@ -556,7 +556,7 @@ class Blog
 			$content = substr($content, $start, $pos);
 		}
 		$content = htmlspecialchars_decode(strip_tags(strip_decode($content)));
-		$content = str_replace("Read The Full", "", $content);
+		$content = str_replace(i18n_r(BLOGFILE.'/READ_FULL_ARTICLE'), "", $content);
 		return $content;
 	}
 
