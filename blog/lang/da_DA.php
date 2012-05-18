@@ -3,10 +3,10 @@
 *
 * @File:	 	Blog
 * @Subpackage:	Plugin language
-* @Subject:	Danish language file
+* @Subject:		Danish language file
 * @Date:		16. May 2012
 * @Revision:	
-* @Version:		1.1
+* @Version:		1.0
 * @Author:		Christian Sand 
 * @URL:			http://get-simple.dk
 *****************************************************/
@@ -23,7 +23,7 @@ $i18n = array(
 	'CATCREATED' 			=> "Oprettet",
 	'HELP' 					=> ">Hjælp",
 	'ALL_FAQ' 				=> ">Alle nyhedsindlæg",
-	'POST_SLUG'				=> "Side med nyhedsindlæg",
+	'POST_SLUG'				=> "Slug/URL",
 	'POST_TAGS'				=> "Etiketter (kommaseparerede)",
 	'POST_DATE'				=> "Udgivelsesdato (mm/dd/yyyy) og -tidpunkt (hh:mm)",
 	'POST_PRIVATE'			=> "Udgiv IKKE nyhedsindlæg",
@@ -56,80 +56,60 @@ $i18n = array(
 	'SEARCH'				=> "Gemmemsøg nyhedsblog",
 	'FOUND'					=> "Følgende nyhedsindlæg fundet:",
 	'NOT_FOUND'				=> "Ingen nyhedsindlæg fundet.",
-	'POST_DATE'				=> "Udgivelsestidspunkt",
+	'POST_DATE'				=> "Slug/URL",
 	'CATEGORIES' 			=> "Kategorier",
 	'VIEW_ALL' 				=> "Vis alle",
-	'VIEW' 					=> "Prøvevis",
+	'VIEW' 					=> "Gennemse",
 	'ADD_P' 				=> "Tilføj nyt indlæg",
 	'EDIT_CONTENT' 			=> "Rediger indhold: ",
 	'EDIT' 					=> "Rediger ",
 	'POST' 					=> "Nyheder",
-	'DEL_CONTENT' 			=> "Slet indhold",
+	'DEL_CONTENT' 			=> "Slet indhold", // no '"'
 	'QUESTIONS' 			=> "Nyhedsindlæg",
-	'TITLE' 				=> "Titel ...", 
+	'TITLE' 				=> "Titel ...", // javascript, no "'"
 	'CHOOSECAT' 			=> "Vælg kategori ...",
 	'ADD_CONTENT' 			=> "Tilføj indhold",
-	'MANAGECAT' 			=> "Kategorier",
-	'ADD_NCAT' 				=> "Kategori",
-	'ADD_CAT' 				=> "Tilføj kategori",
-	'CAT_TITLE' 			=> "Titel på kategori ...",
+	'MANAGECAT' 			=> "Administrer kategorier",
+	'ADD_NCAT' 				=> "Tilføj ny kategori",
+	'ADD_CAT' 				=> "Tilføj kategori", // no '"'
+	'CAT_TITLE' 			=> "Titel på kategori ...", // javascript, no "'"
 	'DEL_CAT1' 				=> "Slet kategori: ",
 	'DEL_CAT2' 				=> "Dette sletter også ALT* indhold under kategorien!",
 	'CONTENT' 				=> "indhold",
 	'YR_CATNAME' 			=> "Navn på kategori",
-	'HELP' 					=> "Hjælp",
-	'SETTINGS' 				=> "Indstillinger",
-	'RSS_FEEDS' 			=> "RSS",
-	'CATEGORIES' 			=> "Kategorier",
-	'CREATE_POST' 			=> "Opret nyhed",
-	'MANAGE_POSTS' 			=> "Nyheder",
-	'CATEGORY_ADDED' 		=> "Kategori tilføjet",
-	'CATEGORY_ERROR' 		=> "Kategori ikke gemt",
-	'FEED_ADDED' 			=> "Nyhedsfeed tilføjet",
-	'FEED_ERROR' 			=> "Nyhedsfeed blev ikke gemt",
-	'FEED_DELETED' 			=> "Nyhedsfeed slettet",
-	'FEED_DELETE_ERROR' 	=> "Nyhedsfeed ikke slettet",
-	'AUTO_IMPORTER_TITLE' 	=> "Autoimporter cronjob-opsætning af nyhedsfeed",
-	'AUTO_IMPORTER_DESC' 	=> "Dette udvidelsesmodul forudsætter, at cronjob opsættes via webhotellets administrationspanel. Cronjobbets skal bestå af følgende kodestykke. <br/><strong>lynx -dump http://yourdomain.com.com/index.php?blogslug&import=your_rss_import_password_above > /dev/null</strong>",
-	'ADD_FEED' 				=> "Tilføj nyhedsfeed",
-	'MANAGE_FEEDS' 			=> "Tilføj og administrer nyhedsfeeds",
-	'ADD_NEW_FEED' 			=> "Nyhedsfeed",
-	'BLOG_CATEGORY' 		=> "Blogkategori",
-	'CATEGORY_NAME' 		=> "Kategori",
-	'ADD_CATEGORY' 			=> "Navngiv kategori",
-	'MANAGE_CATEGORIES' 	=> "Tilføj og administrer nyhedskategorier",
-	'RSS_FEED' 				=> "Nyhedsfeed",
-	'FEED_CATEGORY' 		=> "Kategori",
-	'DELETE_FEED' 			=> "Slet",
-	'TAGS' 					=> "Etiketter",
-	'DISPLAY_TAGS_UNDER_POST' => "Vis etiketter under nyhedsindlæg",
-	'POST_ADDED' 			=> "Nyhedsindlæg gemt",
-	'POST_ERROR' 			=> "Nyhedsindlæg ikke gemt",
-	'HELP_CATEGORIES' 		=> "Vis blogkategorier. ",
-	'HELP_SEARCH' 			=> "Vis søgefelt",
-	'HELP_ARCHIVES' 		=> "Vis blogarkiver",
-	'HELP_RECENT' 			=> "Vis seneste nyhedsindlæg",
-	'RSS_TITLE' 			=> "Titel på RSS-nyhedsfeed",
-	'RSS_DESCRIPTION' 		=> "Beskrivelse af nyhedsfeed",
-	'RSS_LOCATION' 			=> "Oprettede nyhedsfeeds tilgås via adressen",
-	'POST_THUMBNAIL' 		=> "Enable Post Thumbnail", 
-	//Added version 1.1 
-	'NO_POSTS' 				=> "Ingen indlæg", 
-	'CLICK_TO_CREATE' 		=> "Klik her for at oprette et", 
-	'PAGE_TITLE' 			=> "Sidetitel", 
-	'DATE' 					=> "Data", 
-	'FRONT_END_FUNCTIONS' 	=> "Front End-fuktioner", 
-	'READ_FULL_ARTICLE' 	=> "Læs hele artiklen", // Used for rss feed importer
-	'GO_BACK' 				=> "Tilbage til forregående side", 
-	'' 		=> "", 
-	'' 		=> "", 
-	'' 		=> "", 
-	//Error/Success Messages  (_construct())
-	'DATA_BLOG_DIR' 		=> "Mappen data/blog oprettet", 
-	'DATA_BLOG_DIR_ERR' 	=> "Mappen data/blog_posts IKKE oprettet!", 
-	'DATA_BLOG_DIR_ERR_HINT' => "Opret mappen manuelt, for at blogmodulet kan fungere", 
-	'DATA_BLOG_CATEGORIES' 	=> "Mappen data/other/blog_categories.xml oprettet", 
-	'DATA_BLOG_CATEGORIES_ERR' => "Mappen data/other/blog_categories.xml IKKE oprettet!", 
-	'DATA_BLOG_RSS' 		=> "Filen data/other/blog_rss.xml oprettet", 
-	'DATA_BLOG_RSS_ERR' 	=> "Filen data/other/blog_rss.xml IKKE oprettet!" 
+	'HELP' 					=> "Hjælp", // no '"'
+	'SETTINGS' 				=> "Indstillinger", // no '"'
+	'RSS_FEEDS' 			=> "RSS-nyheder", // no '"'
+	'CATEGORIES' 			=> "Kategorier", // no '"'
+	'CREATE_POST' 			=> "Opret nyhed", // no '"'
+	'MANAGE_POSTS' 			=> "Administrer nyheder", // no '"'
+	'CATEGORY_ADDED' 		=> "Kategori tilføjet", // no '"'
+	'CATEGORY_ERROR' 		=> "Kategori ikke gemt", // no '"'
+	'FEED_ADDED' 			=> "RSS-nyhedsfeed tilføjet", // no '"'
+	'FEED_ERROR' 			=> "RSS-nyhedsfeed blev ikke gemt", // no '"'
+	'FEED_DELETED' 			=> "Nyhedsfeed slettet", // no '"'
+	'FEED_DELETE_ERROR' 	=> "Nyhedsfeed ikke slettet", // no '"'
+	'AUTO_IMPORTER_TITLE' 	=> "Autoimporter cronjob-opsætning af RSS-nyhedsfeed", // no '"'
+	'AUTO_IMPORTER_DESC' 	=> "Dette udvidelsesmodul forudsætter, at cronjob opsættes via webhotellets administrationspanel. Cronjobbets skal bestå af følgende kodestykke. <br/><strong>lynx -dump http://yourdomain.com.com/index.php?blogslug&import=your_rss_import_password_above > /dev/null</strong>", // no '"'
+	'ADD_FEED' 				=> "Tilføj RSS-nyhedsfeed", // no '"'
+	'MANAGE_FEEDS' 			=> "Tilføj &amp; administrer RSS-nyhedsfeeds", // no '"'
+	'ADD_NEW_FEED' 			=> "Tilføj nyt RSS-nyhedsfeed", // no '"'
+	'BLOG_CATEGORY' 		=> "Blogkategori", // no '"'
+	'CATEGORY_NAME' 		=> "Navn på kategori", // no '"'
+	'ADD_CATEGORY' 			=> "Tilføj ny kategori", // no '"'
+	'MANAGE_CATEGORIES' 	=> "Tilføj &amp; administrer kategorier", // no '"'
+	'RSS_FEED' 				=> "RSS-nyhedsfeed", // no '"'
+	'FEED_CATEGORY' 		=> "RSS-nyhedskategori", // no '"'
+	'DELETE_FEED' 			=> "Slet nyhedsfeed", // no '"'
+	'TAGS' 				=> "Etiketter", // no '"'
+	'DISPLAY_TAGS_UNDER_POST' => "Vis etiketter under nyhedsindlæg", // no '"'
+	'POST_ADDED' 			=> "Nyhedsindlæg gemt", // no '"'
+	'POST_ERROR' 			=> "Nyhedsindlæg ikke gemt", // no '"'
+	'HELP_CATEGORIES' 			=> "Vis blogkategorier. ", // no '"'
+	'HELP_SEARCH' 			=> "Vis søgefelt", // no '"'
+	'HELP_ARCHIVES' 			=> "Vis blogarkiver", // no '"'
+	'HELP_RECENT' 			=> "Vis seneste nyhedsindlæg", // no '"'
+	'RSS_TITLE' 			=> "Titel på RSS-nyhedsfeed", // no '"'
+	'RSS_DESCRIPTION' 			=> "Beskrivelse af RSS-nyhedsfeed", // no '"'
+	'RSS_LOCATION' 			=> "Oprettede RSS-nyhedsfeeds ses herunder", // no '"'
 );

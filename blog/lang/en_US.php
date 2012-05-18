@@ -135,5 +135,8 @@ $i18n = array(
 	'DISPLAY_ALL_POSTS_AD_TOP' 	=> "Enable all posts top ad",
 	'DISPLAY_ALL_POSTS_AD_BOTTOM' 	=> "Enable all posts bottom ad",
 	'DISPLAY_POST_AD_TOP' 	=> "Enable individual post top ad",
-	'DISPLAY_POST_AD_BOTTOM' 	=> "Enable individual post bottom ad"
+	'DISPLAY_POST_AD_BOTTOM' 	=> "Enable individual post bottom ad",
+	//ADDED VERSION 1.1.1
+	'POST_THUMBNAIL' => "Display Posts Thumbnails",
+	'POST_THUMBNAIL_LABEL' => "Upload Thumbnail"
 );

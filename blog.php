@@ -13,7 +13,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.1', 		
+	'1.1.1', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -223,7 +223,7 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
-		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom']);
+		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom'], $_POST['post_thumbnail']);
 	}
 	?>
 	<h3><?php i18n(BLOGFILE.'/BLOG_SETTINGS'); ?></h3>
@@ -326,6 +326,16 @@ function show_settings_admin()
 				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
 				<span style="margin-left: 30px;">&nbsp;</span>
 				<input name="show_tags" type="radio" value="N" <?php if ($Blog->getSettingsData("displaytags") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="post_thumbnail"><?php i18n(BLOGFILE.'/POST_THUMBNAIL'); ?>:</label>
+				<input name="post_thumbnail" type="radio" value="Y" <?php if ($Blog->getSettingsData("postthumbnail") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="post_thumbnail" type="radio" value="N" <?php if ($Blog->getSettingsData("postthumbnail") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
 				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
 			</p>
 		</div>
@@ -500,6 +510,8 @@ function editPost($post_id=null)
 		$blog_data = $Blog->getXMLnodes();
 	}
 	?>
+	<link href="../plugins/blog/uploader/client/fileuploader.css" rel="stylesheet" type="text/css">
+	<script src="../plugins/blog/uploader/client/fileuploader.js" type="text/javascript"></script>
 	<h3 class="floated">
 	  <?php
 	  if ($post_id == null)
@@ -563,6 +575,29 @@ function editPost($post_id=null)
 				<?php category_dropdown($blog_data->category); ?>
 			</select>
 			</p>
+		</div>
+		<div class="rightopt">
+				<label>Upload Thumbnail</label>
+			<div class="uploader_container"> 
+			    <div id="file-uploader-thumbnail"> 
+			        <noscript> 
+			            <p>Please enable JavaScript to use file uploader.</p>
+			        </noscript> 
+			    </div> 
+			    <script> 
+			   		 var uploader = new qq.FileUploader({
+				        element: document.getElementById('file-uploader-thumbnail'),
+				        // path to server-side upload script
+				        action: '../plugins/blog/uploader/server/php.php',
+			        	onComplete: function(id, fileName, responseJSON){
+				        	$('#post-thumbnail').attr('value', responseJSON.newFilename);
+				    	}
+
+			    }, '<?php i18n(BLOGFILE.'/POST_THUMBNAIL_LABEL'); ?>');
+			        window.onload = createUploader;
+			    </script>
+			</div>
+			<input type="text" id="post-thumbnail" name="post-thumbnail" value="<?php echo $blog_data->thumbnail; ?>" style="width:130px;float:right;margin-top:12px !important;" />
 		</div>
 		<div class="clear"></div>
 		</div>
@@ -827,7 +862,7 @@ function show_blog_post($slug, $excerpt=false)
 	global $SITEURL;
 	$post = getXML($slug);
 	$url = $Blog->get_blog_url('post').$post->slug;
-	if($Blog->getSettingsData("postadtop") == 'Y')
+	if(isset($_GET['post']) && $Blog->getSettingsData("postadtop") == 'Y')
 	{
 		?>
 		<div class="blog_all_posts_ad">
@@ -839,34 +874,40 @@ function show_blog_post($slug, $excerpt=false)
 	?>
 		<a href="<?php echo $url; ?>/#disqus_thread" data-disqus-identifier="<?php echo $_GET['post']; ?>" style="float:right"></a>
 	<?php } ?>
-	<h3 class="blog_post_title"><a href="<?php echo $url; ?>" class="blog_post_link"><?php echo $post->title; ?></a></h3>
-	<p class="blog_post_content">
-		<?php
-		if($excerpt == false || $excerpt == true && $Blog->getSettingsData("postformat") == "Y")
-		{
-			echo html_entity_decode($post->content);
-		}
-		else
-		{
-			if($excerpt == true && $Blog->getSettingsData("postformat") == "N")
-			{
-				if($Blog->getSettingsData("excerptlength") == '')
-				{
-					$excerpt_length = 250;
-				}
-				else
-				{
-					$excerpt_length = $Blog->getSettingsData("excerptlength");
-				}
-				echo $Blog->create_excerpt(html_entity_decode($post->content), 0, $excerpt_length);
+	<div class="blog_post_container">
+		<h3 class="blog_post_title"><a href="<?php echo $url; ?>" class="blog_post_link"><?php echo $post->title; ?></a></h3>
+		<p class="blog_post_content">
+			<?php
+			if(!isset($_GET['post']) && $Blog->getSettingsData("postthumbnail") == 'Y' && !empty($post->thumbnail)) 
+			{ 
+				echo '<img src="'.$SITEURL.'data/uploads/'.$post->thumbnail.'" style="" class="blog_post_thumbnail" />';
 			}
-		}
-		if(isset($_GET['post']))
-		{
-			echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; '.i18n_r(BLOGFILE.'/GO_BACK').'</a></p>';
-		}
-		?>
-	</p>
+			if($excerpt == false || $excerpt == true && $Blog->getSettingsData("postformat") == "Y")
+			{
+				echo html_entity_decode($post->content);
+			}
+			else
+			{
+				if($excerpt == true && $Blog->getSettingsData("postformat") == "N")
+				{
+					if($Blog->getSettingsData("excerptlength") == '')
+					{
+						$excerpt_length = 250;
+					}
+					else
+					{
+						$excerpt_length = $Blog->getSettingsData("excerptlength");
+					}
+					echo $Blog->create_excerpt(html_entity_decode($post->content), 0, $excerpt_length);
+				}
+			}
+			if(isset($_GET['post']))
+			{
+				echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; '.i18n_r(BLOGFILE.'/GO_BACK').'</a></p>';
+			}
+			?>
+		</p>
+	</div>
 	<?php
 	if(!empty($post->tags) && $Blog->getSettingsData("displaytags") != 'N')
 	{
@@ -881,7 +922,7 @@ function show_blog_post($slug, $excerpt=false)
 		}
 		echo  '</p>';
 	}
-	if($Blog->getSettingsData("postadbottom") == 'Y')
+	if(isset($_GET['post']) && $Blog->getSettingsData("postadbottom") == 'Y')
 	{
 		?>
 		<div class="blog_all_posts_ad">
