@@ -2,15 +2,18 @@
 # get correct id for plugin
 $thisfile = basename(__FILE__, ".php");
 define('BLOGFILE', $thisfile);
+define('BLOGSETTINGS', GSDATAOTHERPATH  . 'blog_settings.xml');
 
 # add in this plugin's language file
-i18n_merge($thisfile) || i18n_merge($thisfile, 'en_US');
+$settings_lang = getXML(BLOGSETTINGS);
+$LANG = $settings_lang->lang;
+i18n_merge($thisfile) || i18n_merge($LANG);
 
 # register plugin
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.0.3', 		
+	'1.1', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -20,7 +23,7 @@ register_plugin(
 
 add_action('pages-sidebar','createSideMenu',array($thisfile, i18n_r(BLOGFILE.'/PLUGIN_SIDE')));
 add_filter('content', 'blog_display_posts');
-define('BLOGSETTINGS', GSDATAOTHERPATH  . 'blog_settings.xml');
+add_action('theme-header', 'shareThisToolHeader');
 define('BLOGCATEGORYFILE', GSDATAOTHERPATH  . 'blog_categories.xml');
 define('BLOGRSSFILE', GSDATAOTHERPATH  . 'blog_rss.xml');
 define('BLOGPLUGINFOLDER', GSPLUGINPATH.'blog/');
@@ -220,7 +223,7 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
-		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count']);
+		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom']);
 	}
 	?>
 	<h3><?php i18n(BLOGFILE.'/BLOG_SETTINGS'); ?></h3>
@@ -255,7 +258,7 @@ function show_settings_admin()
 					$languages = $Blog->blog_get_languages();
 					foreach ($languages as $lang) 
 					{
-						if ($key == $Blog->getSettingsData("lang"))
+						if ($lang == $Blog->getSettingsData("lang"))
 						{
 							echo '<option value="'.$lang.'" selected="selected">'.$lang.'</option>';
 						}
@@ -326,17 +329,22 @@ function show_settings_admin()
 				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
 			</p>
 		</div>
+		<div class="clear"></div>
+		<h3><?php i18n(BLOGFILE.'/RSS_FILE_SETTINGS'); ?></h3>
+		<div class="leftsec">
+			<p>
+				<label for="rss_title"><?php i18n(BLOGFILE.'/RSS_TITLE'); ?>:</label>
+				<input class="text" type="text" name="rss_title" value="<?php echo $Blog->getSettingsData("rsstitle"); ?>" />
+			</p>
+		</div>
 		<div class="rightsec">
 			<p>
-				<label for="posts_per_page"><?php i18n(BLOGFILE.'/DISPLAY_TAGS_UNDER_POST'); ?>:</label>
-				<input name="show_tags" type="radio" value="Y" <?php if ($Blog->getSettingsData("displaytags") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
-				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
-				<span style="margin-left: 30px;">&nbsp;</span>
-				<input name="show_tags" type="radio" value="N" <?php if ($Blog->getSettingsData("displaytags") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
-				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+				<label for="rss_description"><?php i18n(BLOGFILE.'/RSS_DESCRIPTION'); ?>:</label>
+				<input class="text" type="text" name="rss_description" value="<?php echo $Blog->getSettingsData("rssdescription"); ?>" />
 			</p>
 		</div>
 		<div class="clear"></div>
+		<h3><?php i18n(BLOGFILE.'/SOCIAL_SETTINGS'); ?></h3>
 		<div class="leftsec">
 			<p>
 				<label for="comments"><?php i18n(BLOGFILE.'/DISPLAY_DISQUS_COMMENTS'); ?>:</label>
@@ -349,6 +357,13 @@ function show_settings_admin()
 		</div>
 		<div class="rightsec">
 			<p>
+				<label for="disqus_shortname"><?php i18n(BLOGFILE.'/DISQUS_SHORTNAME'); ?>:</label>
+				<input class="text" type="text" name="disqus_shortname" value="<?php echo $Blog->getSettingsData("disqusshortname"); ?>" />
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
 				<label for="posts_per_page"><?php i18n(BLOGFILE.'/DISPLAY_DISQUS_COUNT'); ?>:</label>
 				<input name="disqus_count" type="radio" value="Y" <?php if ($Blog->getSettingsData("disquscount") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
 				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
@@ -360,21 +375,87 @@ function show_settings_admin()
 		<div class="clear"></div>
 		<div class="leftsec">
 			<p>
-				<label for="disqus_shortname"><?php i18n(BLOGFILE.'/DISQUS_SHORTNAME'); ?>:</label>
-				<input class="text" type="text" name="disqus_shortname" value="<?php echo $Blog->getSettingsData("disqusshortname"); ?>" />
+				<label for="sharethis"><?php i18n(BLOGFILE.'/ENABLE_SHARE_THIS'); ?>:</label>
+				<input name="sharethis" type="radio" value="Y" <?php if ($Blog->getSettingsData("sharethis") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="sharethis" type="radio" value="N" <?php if ($Blog->getSettingsData("sharethis") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="sharethis_id"><?php i18n(BLOGFILE.'/SHARE_THIS_ID'); ?>:</label>
+				<input class="text" type="text" name="sharethis_id" value="<?php echo $Blog->getSettingsData("sharethisid"); ?>" />
 			</p>
 		</div>
 		<div class="clear"></div>
 		<div class="leftsec">
 			<p>
-				<label for="rss_title"><?php i18n(BLOGFILE.'/RSS_TITLE'); ?>:</label>
-				<input class="text" type="text" name="rss_title" value="<?php echo $Blog->getSettingsData("rsstitle"); ?>" />
+				<label for="addthis"><?php i18n(BLOGFILE.'/ENABLE_ADD_THIS'); ?>:</label>
+				<input name="addthis" type="radio" value="Y" <?php if ($Blog->getSettingsData("addthis") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="addthis" type="radio" value="N" <?php if ($Blog->getSettingsData("addthis") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
 			</p>
 		</div>
 		<div class="rightsec">
 			<p>
-				<label for="rss_description"><?php i18n(BLOGFILE.'/RSS_DESCRIPTION'); ?>:</label>
-				<input class="text" type="text" name="rss_description" value="<?php echo $Blog->getSettingsData("rssdescription"); ?>" />
+				<label for="addthis_id"><?php i18n(BLOGFILE.'/ADD_THIS_ID'); ?>:</label>
+				<input class="text" type="text" name="addthis_id" value="<?php echo $Blog->getSettingsData("addthisid"); ?>" />
+			</p>
+		</div>
+		<div class="clear"></div>
+		<h3><?php i18n(BLOGFILE.'/AD_TITLE'); ?></h3>
+		<div class="leftec" style="width:100%">
+			<p>
+				<label for="ad_data"><?php i18n(BLOGFILE.'/AD_DATA'); ?>:</label>
+				<textarea name="ad_data" class="text"  style="width:100%;height:100px;">
+					<?php echo $Blog->getSettingsData("addata"); ?>
+				</textarea>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="all_posts_ad_top"><?php i18n(BLOGFILE.'/DISPLAY_ALL_POSTS_AD_TOP'); ?>:</label>
+				<input name="all_posts_ad_top" type="radio" value="Y" <?php if ($Blog->getSettingsData("allpostsadtop") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="all_posts_ad_top" type="radio" value="N" <?php if ($Blog->getSettingsData("allpostsadtop") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="all_posts_ad_bottom"><?php i18n(BLOGFILE.'/DISPLAY_ALL_POSTS_AD_BOTTOM'); ?>:</label>
+				<input name="all_posts_ad_bottom" type="radio" value="Y" <?php if ($Blog->getSettingsData("allpostsadbottom") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="all_posts_ad_bottom" type="radio" value="N" <?php if ($Blog->getSettingsData("allpostsadbottom") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="post_ad_top"><?php i18n(BLOGFILE.'/DISPLAY_POST_AD_TOP'); ?>:</label>
+				<input name="post_ad_top" type="radio" value="Y" <?php if ($Blog->getSettingsData("postadtop") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="post_ad_top" type="radio" value="N" <?php if ($Blog->getSettingsData("postadtop") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="post_ad_bottom"><?php i18n(BLOGFILE.'/DISPLAY_POST_AD_BOTTOM'); ?>:</label>
+				<input name="post_ad_bottom" type="radio" value="Y" <?php if ($Blog->getSettingsData("postadbottom") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="post_ad_bottom" type="radio" value="N" <?php if ($Blog->getSettingsData("postadbottom") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
 			</p>
 		</div>
 		<div class="clear"></div>
@@ -746,7 +827,15 @@ function show_blog_post($slug, $excerpt=false)
 	global $SITEURL;
 	$post = getXML($slug);
 	$url = $Blog->get_blog_url('post').$post->slug;
-	if($Blog->getSettingsData("disquscount") == 'Y') { 
+	if($Blog->getSettingsData("postadtop") == 'Y')
+	{
+		?>
+		<div class="blog_all_posts_ad">
+			<?php echo $Blog->getSettingsData("addata"); ?>
+		</div>
+		<?php
+	}
+	if(isset($_GET['post']) && $Blog->getSettingsData("disquscount") == 'Y') { 
 	?>
 		<a href="<?php echo $url; ?>/#disqus_thread" data-disqus-identifier="<?php echo $_GET['post']; ?>" style="float:right"></a>
 	<?php } ?>
@@ -792,38 +881,25 @@ function show_blog_post($slug, $excerpt=false)
 		}
 		echo  '</p>';
 	}
-	if($Blog->getSettingsData("comments") == 'Y' && isset($_GET['post']))
+	if($Blog->getSettingsData("postadbottom") == 'Y')
 	{
 		?>
-		<div id="disqus_thread"></div>
-		<script type="text/javascript">
-		/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-		    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname"); ?>'; // required: replace example with your forum shortname
-			var disqus_identifier = '<?php echo $_GET['post']; ?>';
-
-		/* * * DON'T EDIT BELOW THIS LINE * * */
-		(function() {
-		    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-		    dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-		    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-		})();
-		</script>
-		<?php if($Blog->getSettingsData("disquscount") == 'Y') { ?>
-			<script type="text/javascript">
-				/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-			    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname") ?>'; // required: replace example with your forum shortname
-				var disqus_identifier = '<?php echo $_GET['post']; ?>';
-
-				/* * * DON'T EDIT BELOW THIS LINE * * */
-				(function () {
-				var s = document.createElement('script'); s.async = true;
-				s.type = 'text/javascript';
-				s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
-				(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-				}());
-			</script>
+		<div class="blog_all_posts_ad">
+			<?php echo $Blog->getSettingsData("addata"); ?>
+		</div>
 		<?php
-		}
+	}
+	if(isset($_GET['post']) && $Blog->getSettingsData("addthis") == 'Y')
+	{
+		addThisTool();
+	}
+	if(isset($_GET['post']) && $Blog->getSettingsData("sharethis") == 'Y')
+	{
+		shareThisTool();
+	}
+	if(isset($_GET['post']) && $Blog->getSettingsData("comments") == 'Y' && isset($_GET['post']))
+	{
+		disqusTool();
 	}
 }
 
@@ -1080,6 +1156,14 @@ function show_posts_page($index=0)
 {
 	$Blog = new Blog;
 	$posts = $Blog->listPosts();
+	if($Blog->getSettingsData("allpostsadtop") == 'Y')
+	{
+		?>
+		<div class="blog_all_posts_ad">
+			<?php echo $Blog->getSettingsData("addata"); ?>
+		</div>
+		<?php
+	}
 	if(!empty($posts))
 	{
 		$pages = array_chunk($posts, intval($Blog->getSettingsData("postperpage")), TRUE);
@@ -1109,7 +1193,15 @@ function show_posts_page($index=0)
 	} 
 	else 
 	{
-	echo '<p>' . i18n(BLOGFILE.'/NO_POSTS') . '</p>';
+		echo '<p>' . i18n(BLOGFILE.'/NO_POSTS') . '</p>';
+	}
+	if($Blog->getSettingsData("allpostsadbottom") == 'Y')
+	{
+		?>
+		<div class="blog_all_posts_ad">
+			<?php echo $Blog->getSettingsData("addata"); ?>
+		</div>
+		<?php
 	}
 }
 
@@ -1179,4 +1271,94 @@ function show_help_admin()
 		<a href="<?php echo $SITEURL."rss.rss"; ?>" target="_blank"><?php echo $SITEURL."rss.rss"; ?>
 	</p>
 	<?php
+}
+
+function addThisTool()
+{
+	$Blog = new Blog;
+	?>
+	<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+	<a class="addthis_button_preferred_1"></a>
+	<a class="addthis_button_preferred_2"></a>
+	<a class="addthis_button_preferred_3"></a>
+	<a class="addthis_button_preferred_4"></a>
+	<a class="addthis_button_compact"></a>
+	<a class="addthis_counter addthis_bubble_style"></a>
+	</div>
+	<script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=<?php echo $Blog->getSettingsData("addthisid"); ?>"></script>
+	<!-- AddThis Button END -->
+<?php
+}
+
+function shareThisTool()
+{
+	?>
+	<span class='st_sharethis_large' displayText='ShareThis'></span>
+	<span class='st_facebook_large' displayText='Facebook'></span>
+	<span class='st_twitter_large' displayText='Tweet'></span>
+	<span class='st_pinterest_large' displayText='Pinterest'></span>
+	<span class='st_linkedin_large' displayText='LinkedIn'></span>
+	<span class='st_googleplus_large' displayText='Google +'></span>
+	<span class='st_delicious_large' displayText='Delicious'></span>
+	<span class='st_digg_large' displayText='Digg'></span>
+	<span class='st_email_large' displayText='Email'></span>
+	<?php
+}
+
+function shareThisToolHeader()
+{
+	$Blog = new Blog;
+	if($Blog->getSettingsData("sharethis") == 'Y') 
+	{
+		?>
+		<script type="text/javascript">var switchTo5x=true;</script>
+		<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+		<script type="text/javascript">stLight.options({publisher: "<?php echo $Blog->getSettingsData("sharethisid"); ?>"}); </script>
+		<?php
+	}
+
+}
+
+function feedBurnerTool()
+{
+	$Blog = new Blog;
+	?>
+		<a href="<?php echo $Blog->getSettingsData("feedburnerlink"); ?>" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a><a href="<?php echo $Blog->getSettingsData("feedburnerlink"); ?>" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe in a reader</a>
+	<?php
+}
+
+function disqusTool()
+{
+	$Blog = new Blog;
+	?>
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+	    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname"); ?>'; // required: replace example with your forum shortname
+		var disqus_identifier = '<?php echo $_GET['post']; ?>';
+
+	/* * * DON'T EDIT BELOW THIS LINE * * */
+	(function() {
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+	</script>
+	<?php if($Blog->getSettingsData("disquscount") == 'Y') { ?>
+		<script type="text/javascript">
+			/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+		    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname") ?>'; // required: replace example with your forum shortname
+			var disqus_identifier = '<?php echo $_GET['post']; ?>';
+
+			/* * * DON'T EDIT BELOW THIS LINE * * */
+			(function () {
+			var s = document.createElement('script'); s.async = true;
+			s.type = 'text/javascript';
+			s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+			(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+			}());
+		</script>
+	<?php
+	}
 }

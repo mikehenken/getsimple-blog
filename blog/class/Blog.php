@@ -422,7 +422,7 @@ class Blog
 	* @param $display_tags whether to display tags in post summary and on post details page
 	* @return string bool
 	*/  
-	public function saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, $rss_title='', $rss_description='', $comments, $disqus_shortname, $disqus_count)
+	public function saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, $rss_title='', $rss_description='', $comments, $disqus_shortname, $disqus_count, $sharethis, $sharethis_id, $addthis, $addthis_id, $ad_data, $all_posts_ad_top, $all_posts_ad_bottom, $post_ad_top, $post_ad_bottom)
 	{
 
 		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');
@@ -441,6 +441,15 @@ class Blog
 		$xml->addChild('comments', $comments);
 		$xml->addChild('disqusshortname', $disqus_shortname);
 		$xml->addChild('disquscount', $disqus_count);
+		$xml->addChild('sharethis', $sharethis);
+		$xml->addChild('sharethisid', $sharethis_id);
+		$xml->addChild('addthis', $addthis);
+		$xml->addChild('addthisid', $addthis_id);
+		$xml->addChild('addata', $ad_data);
+		$xml->addChild('allpostsadtop', $all_posts_ad_top);
+		$xml->addChild('allpostsadbottom', $all_posts_ad_bottom);
+		$xml->addChild('postadtop', $post_ad_top);
+		$xml->addChild('postadbottom', $post_ad_bottom);
 		$blog_settings = XMLsave($xml, BLOGSETTINGS);
 		if($blog_settings)
 		{
