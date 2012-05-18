@@ -101,7 +101,7 @@ $i18n = array(
 	'RSS_DESCRIPTION' 		=> "RSS Feed Description", 
 	'RSS_LOCATION' 			=> "Below is your blogs RSS feed", 
 	'POST_THUMBNAIL' 		=> "Enable Post Thumbnail", 
-	//Added version 1.1 
+	//Added version 1.0.2 
 	'NO_POSTS' 		=> "There are no posts found", 
 	'CLICK_TO_CREATE' 		=> "Click Here To Create One", 
 	'PAGE_TITLE' 			=> "Page Title", 
@@ -119,5 +119,12 @@ $i18n = array(
 	'DATA_BLOG_CATEGORIES' 	=> "data/other/blog_categories.xml Directory Succesfully Created", 
 	'DATA_BLOG_CATEGORIES_ERR' => "data/other/blog_categories.xml folder could not be created!", 
 	'DATA_BLOG_RSS' 		=> "data/other/blog_rss.xml File Succesfully Created", 
-	'DATA_BLOG_RSS_ERR' 	=> "The data/other/blog_rss.xml file could not be created!" 
+	'DATA_BLOG_RSS_ERR' 	=> "The data/other/blog_rss.xml file could not be created!",
+	//ADDED VERSION 1.1 
+	'DISPLAY_DISQUS_COMMENTS' => "Display Disqus comments",
+	'DISPLAY_DISQUS_COUNT' 	=> "Display Disqus comment count",
+	'DISQUS_SHORTNAME' 	=> "Disqus Shortname",
+	'' 	=> "",
+	'' 	=> "",
+	'' 	=> ""
 );

@@ -10,7 +10,7 @@ i18n_merge($thisfile) || i18n_merge($thisfile, 'en_US');
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.0.2', 		
+	'1.0.3', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -220,7 +220,7 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
-		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description']);
+		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count']);
 	}
 	?>
 	<h3><?php i18n(BLOGFILE.'/BLOG_SETTINGS'); ?></h3>
@@ -334,6 +334,34 @@ function show_settings_admin()
 				<span style="margin-left: 30px;">&nbsp;</span>
 				<input name="show_tags" type="radio" value="N" <?php if ($Blog->getSettingsData("displaytags") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
 				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="comments"><?php i18n(BLOGFILE.'/DISPLAY_DISQUS_COMMENTS'); ?>:</label>
+				<input name="comments" type="radio" value="Y" <?php if ($Blog->getSettingsData("comments") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="comments" type="radio" value="N" <?php if ($Blog->getSettingsData("comments") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="posts_per_page"><?php i18n(BLOGFILE.'/DISPLAY_DISQUS_COUNT'); ?>:</label>
+				<input name="disqus_count" type="radio" value="Y" <?php if ($Blog->getSettingsData("disquscount") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="disqus_count" type="radio" value="N" <?php if ($Blog->getSettingsData("disquscount") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="disqus_shortname"><?php i18n(BLOGFILE.'/DISQUS_SHORTNAME'); ?>:</label>
+				<input class="text" type="text" name="disqus_shortname" value="<?php echo $Blog->getSettingsData("disqusshortname"); ?>" />
 			</p>
 		</div>
 		<div class="clear"></div>
@@ -522,7 +550,7 @@ function edit_categories()
 	  </table>
 	  <p>
 	    <span>
-	      <input class="submit" type="submit" name="category_edit" value="Add Category" />
+	      <input class="submit" type="submit" name="category_edit" value="<?php i18n(BLOGFILE.'/ADD_CATEGORY'); ?>" />
 	    </span>
 	    &nbsp;&nbsp;<?php i18n(BLOGFILE.'/OR'); ?>&nbsp;&nbsp;
 	    <a href="load.php?id=blog" class="cancel"><?php i18n(BLOGFILE.'/CANCEL'); ?></a>
@@ -561,7 +589,7 @@ function edit_rss()
 		    </p>
 		    <p style="float:left;width:200px;margin-left:0px;clear:both">
 		    <span>
-		      <input class="submit" type="submit" name="rss_edit" value="Add RSS" style="width:auto;" />
+		      <input class="submit" type="submit" name="rss_edit" value="<?php i18n(BLOGFILE.'/ADD_FEED'); ?>" style="width:auto;" />
 		    </span>
 		    &nbsp;&nbsp;<?php i18n(BLOGFILE.'/OR'); ?>&nbsp;&nbsp;
 		    <a href="load.php?id=blog" class="cancel"><?php i18n(BLOGFILE.'/CANCEL'); ?></a>
@@ -718,7 +746,10 @@ function show_blog_post($slug, $excerpt=false)
 	global $SITEURL;
 	$post = getXML($slug);
 	$url = $Blog->get_blog_url('post').$post->slug;
+	if($Blog->getSettingsData("disquscount") == 'Y') { 
 	?>
+		<a href="<?php echo $url; ?>/#disqus_thread" data-disqus-identifier="<?php echo $_GET['post']; ?>" style="float:right"></a>
+	<?php } ?>
 	<h3 class="blog_post_title"><a href="<?php echo $url; ?>" class="blog_post_link"><?php echo $post->title; ?></a></h3>
 	<p class="blog_post_content">
 		<?php
@@ -761,8 +792,39 @@ function show_blog_post($slug, $excerpt=false)
 		}
 		echo  '</p>';
 	}
-	?>
-	<?php
+	if($Blog->getSettingsData("comments") == 'Y' && isset($_GET['post']))
+	{
+		?>
+		<div id="disqus_thread"></div>
+		<script type="text/javascript">
+		/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+		    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname"); ?>'; // required: replace example with your forum shortname
+			var disqus_identifier = '<?php echo $_GET['post']; ?>';
+
+		/* * * DON'T EDIT BELOW THIS LINE * * */
+		(function() {
+		    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		    dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+		    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+		</script>
+		<?php if($Blog->getSettingsData("disquscount") == 'Y') { ?>
+			<script type="text/javascript">
+				/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+			    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname") ?>'; // required: replace example with your forum shortname
+				var disqus_identifier = '<?php echo $_GET['post']; ?>';
+
+				/* * * DON'T EDIT BELOW THIS LINE * * */
+				(function () {
+				var s = document.createElement('script'); s.async = true;
+				s.type = 'text/javascript';
+				s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+				(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+				}());
+			</script>
+		<?php
+		}
+	}
 }
 
 /** 

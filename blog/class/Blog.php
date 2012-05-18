@@ -422,7 +422,7 @@ class Blog
 	* @param $display_tags whether to display tags in post summary and on post details page
 	* @return string bool
 	*/  
-	public function saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, $rss_title='', $rss_description='')
+	public function saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, $rss_title='', $rss_description='', $comments, $disqus_shortname, $disqus_count)
 	{
 
 		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');
@@ -438,6 +438,9 @@ class Blog
 		$xml->addChild('displaytags', $display_tags);
 		$xml->addChild('rsstitle', $rss_title);
 		$xml->addChild('rssdescription', $rss_description);
+		$xml->addChild('comments', $comments);
+		$xml->addChild('disqusshortname', $disqus_shortname);
+		$xml->addChild('disquscount', $disqus_count);
 		$blog_settings = XMLsave($xml, BLOGSETTINGS);
 		if($blog_settings)
 		{
@@ -549,6 +552,7 @@ class Blog
 	*/  
 	public function create_excerpt($content, $start, $maxchars)
 	{
+		$maxchars = (int) $maxchars;
 		$content = substr($content, $start, $maxchars);
 		$pos = strrpos($content, " ");
 		if ($pos>0) 
