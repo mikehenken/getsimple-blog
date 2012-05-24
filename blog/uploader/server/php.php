@@ -61,14 +61,14 @@ class qqUploadedFileForm {
 
 class qqFileUploader {
     private $allowedExtensions = array();
-    private $sizeLimit = 10485760;
+    private $sizeLimit;
     private $file;
 
-    function __construct(array $allowedExtensions = array(), $sizeLimit = 10485760){        
+    function __construct(array $allowedExtensions = array(), $sizeLimit = '10M'){        
         $allowedExtensions = array_map("strtolower", $allowedExtensions);
             
         $this->allowedExtensions = $allowedExtensions;        
-        $this->sizeLimit = $sizeLimit;
+        $this->sizeLimit = $this->return_bytes($sizeLimit);
         
         $this->checkServerSettings();       
 
@@ -149,12 +149,27 @@ class qqFileUploader {
         }
 
     }
+
+    public function return_bytes($val) {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+        switch($last) {
+            // The 'G' modifier is available since PHP 5.1.0
+            case 'g':
+                $val *= 1024;
+            case 'm':
+                $val *= 1024;
+            case 'k':
+                $val *= 1024;
+        }
+        return $val;
+    }
 }
 
 // list of valid extensions, ex. array("jpeg", "xml", "bmp")
 $allowedExtensions = array();
 // max file size in bytes
-$sizeLimit = 10 * 1024 * 1024;
+$sizeLimit = ini_get('post_max_size');
 
 $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
 $result = $uploader->handleUpload('../../../../data/uploads/');

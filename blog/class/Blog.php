@@ -76,9 +76,11 @@ class Blog
 	/** 
 	* Lists All Blog Posts
 	* 
+	* @param $array bool if true an array containing each posts filename and publish date will be returned instead of only the filename
+	* @param $sort_dates bool if true the posts array will be sorted by post date -- THIS REQUIRES $array param TO BE TRUE
 	* @return array the filenames & paths of all posts
 	*/  
-	public function listPosts()
+	public function listPosts($array=false, $sort_dates=false)
 	{
 		$all_posts = glob(BLOGPOSTSFOLDER . "/*.xml");
 		if(count($all_posts) < 1)
@@ -87,7 +89,26 @@ class Blog
 		}
 		else
 		{
-			return $all_posts;
+			$count = 0;			
+			if($array==false)
+			{
+				return $all_posts;
+			}
+			else
+			{
+				foreach($all_posts as $post)
+				{
+					$data = getXML($post);
+					$posts[$count]['filename'] = $post;
+					$posts[$count]['date'] = (string) $data->date;
+					$count++;
+				}
+				if($sort_dates != false && $array != false)
+				{
+					usort($posts, array($this, 'sortDates'));  
+				}
+				return $posts;
+			}
 		}
 	}
 
@@ -100,13 +121,27 @@ class Blog
 	public function getSettingsData($field)
 	{
 		$settingsData = getXML(BLOGSETTINGS);
-		if(is_object($settingsData->$field))
+		if($field != "previousblogpage" && $field != "nextblogpage")
 		{
-			return $settingsData->$field;	
+			if(is_object($settingsData->$field))
+			{
+				return $settingsData->$field;	
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
-			return false;
+			if($field == "nextblogpage")
+			{
+				return i18n_r(BLOGFILE.'/NEWER_POSTS');
+			}
+			elseif($field == "previousblogpage")
+			{
+				return i18n_r(BLOGFILE.'/OLDER_POSTS');
+			}
 		}
 	}
 
@@ -126,6 +161,7 @@ class Blog
 	* Saves a post submitted from the admin panel
 	* 
 	* @param $post_data the post data (eg: 'XML_FIELD_NAME => $POSTDATA')
+	* @todo clean up this method... Not happy about it's messiness!
 	* @return bool
 	*/  
 	public function savePost($post_data)
@@ -161,13 +197,15 @@ class Blog
 		{
 			unlink(BLOGPOSTSFOLDER . $post_data['current_slug'] . '.xml');
 		}
-		if($post_data['time'] != '')
+
+
+		if($post_data['date'] != '')
 		{
-			$date = date('r', $post_data['time']);
+			$date = $post_data['date'];
 		} 
 		else
 		{
-			$date = date('r');
+			$date = date('m/d/Y h:i:s a', time());
 		}
 		if($post_data['tags'] != '')
 		{
@@ -218,8 +256,6 @@ class Blog
 				$node->addCData($value);
 			}
 		}
-		    $timestamp = strtotime($post_data['date'] . ' ' . $post_data['time']);
-		    $date = $timestamp ? date('r', $timestamp) : date('r');
 		    $tags = str_replace(array(' ', ',,'), array('', ','), safe_slash_html($post_data['tags']));
 		if (! XMLsave($xml, $file))
 		{
@@ -227,6 +263,7 @@ class Blog
 		}
 		else
 		{
+			$this->createPostsCache();
 			return true;
 		}
 
@@ -236,7 +273,6 @@ class Blog
 	* Deletes a blog post
 	* 
 	* @param $post_id id of the blog post to delete
-	* @todo  create function :)
 	* @return bool
 	*/  
 	public function deletePost($post_id)
@@ -410,19 +446,37 @@ class Blog
 	/** 
 	* Save Blog Plugin Settings
 	* 
-	* @param $blog_url the page to display the bog
-	* @param $language the language of the plugin
-	* @param $excerpt_length the length of the excerpt
-	* @param $show_excerpt whether or not the excerpt should be displayed
-	* @param $posts_per_page the amount of posts per page
-	* @param $recent_posts amount of recent posts that should be displayed 
-	* @param $pretty_urls whether fancy urls should be supported
-	* @param $auto_importer whether auto importer is enabled
-	* @param $auto_importer_pass passphrase for auto importer
-	* @param $display_tags whether to display tags in post summary and on post details page
-	* @return string bool
+	* @param $blog_url string the page to display the bog
+	* @param $language string the language of the plugin
+	* @param $excerpt_length int the length of the excerpt
+	* @param $show_excerpt string whether or not the excerpt should be displayed
+	* @param $posts_per_page int the amount of posts per page
+	* @param $recent_posts int amount of recent posts that should be displayed 
+	* @param $pretty_urls string whether fancy urls should be supported
+	* @param $auto_importer string whether auto importer is enabled
+	* @param $auto_importer_pass string passphrase for auto importer
+	* @param $display_tags string whether to display tags in post summary and on post details page
+	* @param $rss_title string The title to be displayed in the blog RSS feed
+	* @param $rss_description string string The description nto be displayed in the RSS feed
+	* @param $comments string Whether comments should be enabled
+	* @param $disqus_shortname string The disqus account shortname 
+	* @param $disqus_count string Whether to display the disqus post counter on each blog page
+	* @param $sharethis string Whether sharethis widget is enabled 
+	* @param $sharethis_id string The developer ID for sharethis widget 
+	* @param $addthis string Whether addthis widget is enabled 
+	* @param $addthis_id string  The developer id for addthis widget
+	* @param $ad_data string the advertisement data for blog
+	* @param $all_posts_ad_top string Display advertisement at the top of all posts page
+	* @param $all_posts_ad_bottom string Display advertisement at the bottom of all posts page
+	* @param $post_ad_top string Display individual post top advertisement 
+	* @param $post_ad_bottom string Display individual post bottom advertisement 
+	* @param string $post_thumbnail Whether posts should have thumbnails enabled - If not Y then even if a post has a thumbnail uploaded, it will not display
+	* @param $display_date string Whether post date should be displayed 
+	* @param $previous_page string The text for the "Previous Blog Page" link 
+	* @param $next_page string The text for the "Next Blog Page" link 
+	* @return bool
 	*/  
-	public function saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, $rss_title='', $rss_description='', $comments, $disqus_shortname, $disqus_count, $sharethis, $sharethis_id, $addthis, $addthis_id, $ad_data, $all_posts_ad_top, $all_posts_ad_bottom, $post_ad_top, $post_ad_bottom, $post_thubnail)
+	public function saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, $rss_title='', $rss_description='', $comments, $disqus_shortname, $disqus_count, $sharethis, $sharethis_id, $addthis, $addthis_id, $ad_data, $all_posts_ad_top, $all_posts_ad_bottom, $post_ad_top, $post_ad_bottom, $post_thubnail, $display_date, $previous_page, $next_page)
 	{
 
 		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');
@@ -436,6 +490,7 @@ class Blog
 		$xml->addChild('autoimporter', $auto_importer);
 		$xml->addChild('autoimporterpass', $auto_importer_pass);
 		$xml->addChild('displaytags', $display_tags);
+		$xml->addChild('displaydate', $display_date);
 		$xml->addChild('rsstitle', $rss_title);
 		$xml->addChild('rssdescription', $rss_description);
 		$xml->addChild('comments', $comments);
@@ -451,6 +506,8 @@ class Blog
 		$xml->addChild('postadtop', $post_ad_top);
 		$xml->addChild('postadbottom', $post_ad_bottom);
 		$xml->addChild('postthumbnail', $post_thubnail);
+		$xml->addChild('previouspage', $previous_page);
+		$xml->addChild('nextpage', $next_page);
 		$blog_settings = XMLsave($xml, BLOGSETTINGS);
 		if($blog_settings)
 		{
@@ -476,7 +533,6 @@ class Blog
 		$blog_data = array('title' => '',
 							'slug' => '',
 							'date' => '',
-							'time' => '',
 							'private' => '',
 							'tags' => '',
 							'category' => '',
@@ -496,9 +552,10 @@ class Blog
 	}
 
 	/** 
+	* Generates link to blog or blog area
 	* 
-	* 
-	* @return
+	* @param $query string Optionally you can provide the type of blog url you are looking for (eg: 'post', 'category', 'archive', etc..)
+	* @return url to requested blog area
 	*/  
 	public function get_blog_url($query=FALSE) 
 	{
@@ -527,9 +584,9 @@ class Blog
 	}
 
 	/** 
+	* Creates slug for blog posts
 	* 
-	* 
-	* @return
+	* @return string the generated slug
 	*/  
 	public function blog_create_slug($str) 
 	{
@@ -539,9 +596,9 @@ class Blog
 	}
 
 	/** 
+	* Gets available blog plugin langauges
 	* 
-	* 
-	* @return
+	* @return array available langauges
 	*/  
 	public function blog_get_languages() 
 	{
@@ -558,7 +615,10 @@ class Blog
 	/** 
 	* Create Excerpt for post
 	* 
-	* @return
+	* @param $content string the content to be excerpted
+	* @param $start int the starting character to create excerpt from
+	* @param $maxchars int the amount of characters excerpt should be
+	* @return string The created excerpt
 	*/  
 	public function create_excerpt($content, $start, $maxchars)
 	{
@@ -575,9 +635,9 @@ class Blog
 	}
 
 	/** 
+	* Gets and sorts archives for blog
 	* 
-	* 
-	* @return
+	* @return array archives
 	*/  
 	public function get_blog_archives() 
 	{
@@ -599,9 +659,10 @@ class Blog
 	}
 
 	/** 
+	* Generates search results
 	* 
-	* 
-	* @return
+	* @param $keyphrase string the keyphrase to search for
+	* @return array Search results
 	*/  
 	public function searchPosts($keyphrase)
 	{
@@ -644,6 +705,7 @@ class Blog
 
 	/** 
 	* Generates RSS Feed of posts
+	* 
 	* @return bool
 	*/  
 	public function generateRSSFeed()
@@ -660,7 +722,7 @@ class Blog
 		$RSSString                              .= "<language>".str_replace("_", "-",$this->getSettingsData("lang"))."</language>\n";
 
 		$post_array = glob(BLOGPOSTSFOLDER . "/*.xml");
-		$limit = "5";
+		$limit = "10";
 		array_multisort(array_map('filemtime', $post_array), SORT_DESC, $post_array); 
 		$post_array = array_slice($post_array, 0, $limit);
 
@@ -695,5 +757,55 @@ class Blog
 			exit();
 		}
 		fclose($fp);
+	}
+
+	/** 
+	* Creates Blog Posts Cache File
+	* 
+	* @return bool
+	*/  
+	public function createPostsCache()
+	{
+		$posts = $this->listPosts(true, true);
+		$count = 0;
+		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');
+		foreach($posts as $post)
+		{
+			$data = getXML($post['filename']);
+			$new_post = $xml->addChild("post");
+			foreach($data as $key => $value)
+			{
+				$post_parent = $new_post->addChild($key);
+				$post_parent->addCData($value);
+			}
+		}
+		$save_cache = XMLsave($xml, BLOGCACHEFILE);
+	}
+
+	/** 
+	* Sorts dates of blog posts (launched through usort function)
+	* 
+	* @param $a $b array the data to be sorted (from usort)
+	* @return bool
+	*/  
+	public function sortDates($a, $b)
+	{
+		$a = strtotime($a['date']); 
+		$b = strtotime($b['date']); 
+		if ($a == $b) 
+		{ 
+			return 0; 
+		} 
+		else
+		{  
+			if($a<$b) 
+			{ 
+				return 1; 
+			} 
+			else 
+			{ 
+				return -1; 
+			} 
+		} 
 	}
 }

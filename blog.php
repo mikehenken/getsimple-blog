@@ -13,7 +13,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.1.1', 		
+	'1.1.2', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -28,6 +28,7 @@ define('BLOGCATEGORYFILE', GSDATAOTHERPATH  . 'blog_categories.xml');
 define('BLOGRSSFILE', GSDATAOTHERPATH  . 'blog_rss.xml');
 define('BLOGPLUGINFOLDER', GSPLUGINPATH.'blog/');
 define('BLOGPOSTSFOLDER', GSDATAPATH.'blog/');
+define('BLOGCACHEFILE', GSDATAOTHERPATH  . 'blog_cache.xml');
 
 //Include Blog class
 require_once(BLOGPLUGINFOLDER.'class/Blog.php');
@@ -182,7 +183,7 @@ function blog_admin()
 function show_posts_admin()
 {
 	$Blog = new Blog;
-	$all_posts = $Blog->listPosts();
+	$all_posts = $Blog->listPosts(true, true);
 	if($all_posts == false)
 	{
 		echo '<strong>'.i18n_r(BLOGFILE.'/NO_POSTS').'. <a href="load.php?id=blog&create_post">'.i18n_r(BLOGFILE.'/CLICK_TO_CREATE').'</a>';
@@ -199,7 +200,7 @@ function show_posts_admin()
 		<?php
 		foreach($all_posts as $post_name)
 		{
-			$post = $Blog->getPostData($post_name);
+			$post = $Blog->getPostData($post_name['filename']);
 			?>
 				<tr>
 					<td class="blog_post_title"><a title="Edit Page: Agents" href="load.php?id=blog&edit_post=<?php echo $post->slug; ?>" ><?php echo $post->title; ?></a></td>
@@ -223,7 +224,7 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
-		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom'], $_POST['post_thumbnail']);
+		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom'], $_POST['post_thumbnail'], $_POST['display_date'], $_POST['previous_page'], $_POST['next_page']);
 	}
 	?>
 	<h3><?php i18n(BLOGFILE.'/BLOG_SETTINGS'); ?></h3>
@@ -337,6 +338,30 @@ function show_settings_admin()
 				<span style="margin-left: 30px;">&nbsp;</span>
 				<input name="post_thumbnail" type="radio" value="N" <?php if ($Blog->getSettingsData("postthumbnail") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
 				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="display_date"><?php i18n(BLOGFILE.'/DISPLAY_DATE'); ?>:</label>
+				<input name="display_date" type="radio" value="Y" <?php if ($Blog->getSettingsData("displaydate") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="display_date" type="radio" value="N" <?php if ($Blog->getSettingsData("displaydate") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="previous_page"><?php i18n(BLOGFILE.'/PREVIOUS_PAGE_TEXT'); ?>:</label>
+				<input class="text" type="text" name="previous_page" value="<?php echo $Blog->getSettingsData("previouspage"); ?>" />
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="next_page"><?php i18n(BLOGFILE.'/NEXT_PAGE_TEXT'); ?>:</label>
+				<input class="text" type="text" name="next_page" value="<?php echo $Blog->getSettingsData("nextpage"); ?>" />
 			</p>
 		</div>
 		<div class="clear"></div>
@@ -552,7 +577,6 @@ function editPost($post_id=null)
 			<p>
 				<label for="post-date"><?php i18n(BLOGFILE.'/POST_DATE'); ?>:</label>
 				<input class="text short" id="post-date" name="post-date" type="text" value="<?php echo $blog_data->date; ?>" style="width: 60%;" />
-				<input class="text short" id="post-time" name="post-time" type="text" value="<?php echo $blog_data->time; ?>" style="width: 30%; float:right;" />
 			</p>
 		</div>
 		<div class="rightopt">
@@ -862,6 +886,7 @@ function show_blog_post($slug, $excerpt=false)
 	global $SITEURL;
 	$post = getXML($slug);
 	$url = $Blog->get_blog_url('post').$post->slug;
+	$date = $Blog->get_locale_date(strtotime($post->date), '%b %e, %Y');
 	if(isset($_GET['post']) && $Blog->getSettingsData("postadtop") == 'Y')
 	{
 		?>
@@ -876,6 +901,11 @@ function show_blog_post($slug, $excerpt=false)
 	<?php } ?>
 	<div class="blog_post_container">
 		<h3 class="blog_post_title"><a href="<?php echo $url; ?>" class="blog_post_link"><?php echo $post->title; ?></a></h3>
+		<?php if($Blog->getSettingsData("displaydate") == 'Y') {  ?>
+			<p class="blog_post_date">
+				<?php echo $date; ?>
+			</p>
+		<?php } ?>
 		<p class="blog_post_content">
 			<?php
 			if(!isset($_GET['post']) && $Blog->getSettingsData("postthumbnail") == 'Y' && !empty($post->thumbnail)) 
@@ -972,15 +1002,15 @@ function show_blog_categories()
 function show_blog_category($category)
 {
 	$Blog = new Blog;
-	$all_posts = $Blog->listPosts();
+	$all_posts = $Blog->listPosts(true, true);
 	$count = 0;
 	foreach($all_posts as $file)
 	{
-		$data = getXML($file);
+		$data = getXML($file['filename']);
 		if($data->category == $category)
 		{
 			$count++;
-			show_blog_post($file, true);
+			show_blog_post($file['filename'], true);
 		}
 	}
 	if($count < 1)
@@ -1056,14 +1086,14 @@ function show_blog_archive($archive)
 function show_blog_recent_posts()
 {
 	$Blog = new Blog;
-	$posts = $Blog->listPosts();
+	$posts = $Blog->listPosts(true, true);
 	if (!empty($posts)) 
 	{
 		echo '<ul>';
 		$posts = array_slice($posts, 0, $Blog->getSettingsData("recentposts"), TRUE);
 		foreach ($posts as $file) 
 		{
-			$data = getXML($file);
+			$data = getXML($file['filename']);
 			$url = $Blog->get_blog_url('post') . $data->slug;
 			$title = strip_tags(strip_decode($data->title));
 			echo "<li><a href=\"$url\">$title</a></li>";
@@ -1100,7 +1130,6 @@ function show_blog_tag($tag)
 function show_all_blog_posts()
 {
 	$Blog = new Blog;
-	$all_posts = $Blog->listPosts();
 	if(isset($_GET['page']))
 	{
 		$page = $_GET['page'];
@@ -1167,7 +1196,6 @@ function auto_import()
 		        $post_data['title']         = $item['title'];
 		        $post_data['slug']          = '';
 		        $post_data['date']          = $item['pubdate'];
-		        $post_data['time']          = '';
 		        $post_data['private']       = '';
 		        $post_data['tags']          = '';
 		        $post_data['category']      = $rss_category;
@@ -1196,7 +1224,7 @@ function auto_import()
 function show_posts_page($index=0) 
 {
 	$Blog = new Blog;
-	$posts = $Blog->listPosts();
+	$posts = $Blog->listPosts(true, true);
 	if($Blog->getSettingsData("allpostsadtop") == 'Y')
 	{
 		?>
@@ -1220,7 +1248,7 @@ function show_posts_page($index=0)
 		foreach ($posts as $file)
 		{
 			$count++;
-			show_blog_post($file, true);
+			show_blog_post($file['filename'], true);
 
 			if (sizeof($pages) > 1)
 			{
@@ -1264,7 +1292,7 @@ function show_blog_navigation($index, $total, $count)
 	?>
 		<div class="left">
 		<a href="<?php echo $url . ($index+1); ?>">
-			&larr; <?php i18n(BLOGFILE.'/OLDER_POSTS'); ?>
+			&larr; <?php echo $Blog->getSettingsData("previousblogpage"); ?>
 		</a>
 		</div>
 		<?php
@@ -1273,7 +1301,7 @@ function show_blog_navigation($index, $total, $count)
 		?>
 			<div class="right">
 			<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
-				<?php i18n(BLOGFILE.'/NEWER_POSTS'); ?> &rarr;
+				<?php echo $Blog->getSettingsData("nextblogpage"); ?> &rarr;
 			</a>
 			</div>
 		<?php

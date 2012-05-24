@@ -138,5 +138,9 @@ $i18n = array(
 	'DISPLAY_POST_AD_BOTTOM' 	=> "Enable individual post bottom ad",
 	//ADDED VERSION 1.1.1
 	'POST_THUMBNAIL' => "Display Posts Thumbnails",
+	'POST_THUMBNAIL_LABEL' => "Upload Thumbnail",
+	'DISPLAY_DATE' => "Display Post Date",
+	'PREVIOUS_PAGE_TEXT' => "\"Previous Blog Page\" Text",
+	'NEXT_PAGE_TEXT' => "\"Next Blog Page\" Text",
 	'POST_THUMBNAIL_LABEL' => "Upload Thumbnail"
 );
