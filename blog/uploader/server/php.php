@@ -68,9 +68,7 @@ class qqFileUploader {
         $allowedExtensions = array_map("strtolower", $allowedExtensions);
             
         $this->allowedExtensions = $allowedExtensions;        
-        $this->sizeLimit = $this->return_bytes($sizeLimit);
-        
-        $this->checkServerSettings();       
+        $this->sizeLimit = $this->return_bytes($sizeLimit);  
 
         if (isset($_GET['qqfile'])) {
             $this->file = new qqUploadedFileXhr();
@@ -79,16 +77,6 @@ class qqFileUploader {
         } else {
             $this->file = false; 
         }
-    }
-    
-    private function checkServerSettings(){        
-        $postSize = $this->toBytes(ini_get('post_max_size'));
-        $uploadSize = $this->toBytes(ini_get('upload_max_filesize'));        
-        
-        if ($postSize < $this->sizeLimit || $uploadSize < $this->sizeLimit){
-            $size = max(1, $this->sizeLimit / 1024 / 1024) . 'M';             
-            die("{'error':'increase post_max_size and upload_max_filesize to $size'}");    
-        }        
     }
     
     private function toBytes($str){
@@ -169,7 +157,16 @@ class qqFileUploader {
 // list of valid extensions, ex. array("jpeg", "xml", "bmp")
 $allowedExtensions = array();
 // max file size in bytes
-$sizeLimit = ini_get('post_max_size');
+$postSizeLimit = ini_get('post_max_size');
+$uploadSizeLimit = ini_get('upload_max_filesize');
+if($postSizeLimit < $uploadSizeLimit)
+{
+    $sizeLimit = $postSizeLimit;
+}
+else
+{
+    $sizeLimit = $uploadSizeLimit;
+}
 
 $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
 $result = $uploader->handleUpload('../../../../data/uploads/');

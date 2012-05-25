@@ -114,6 +114,7 @@ $i18n = array(
 	'' 		=> "", 
 	//Error/Success Messages  (_construct())
 	'DATA_BLOG_DIR' 		=> "data/blog Directory Succesfully Created", 
+	'DATA_FILE_ERROR' 		=> "File could not be written!", 
 	'DATA_BLOG_DIR_ERR' 	=> "The data/blog_posts folder could not be created!", 
 	'DATA_BLOG_DIR_ERR_HINT' => "You are going to have to create this directory yourelf for the plugin to work properly", 
 	'DATA_BLOG_CATEGORIES' 	=> "data/other/blog_categories.xml Directory Succesfully Created", 

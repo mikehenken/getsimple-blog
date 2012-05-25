@@ -69,7 +69,15 @@ class Blog
 			$auto_importer = 'N';
 			$auto_importer_pass = 'passphrase';
 			$display_tags = 'Y';
-			$create_rss_file = $this->saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags);
+			$create_rss_file = $this->saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', i18n_r(BLOGFILE.'/NEWER_POSTS'), i18n_r(BLOGFILE.'/OLDER_POSTS'));
+			if($create_rss_file)
+			{
+				echo '<div class="updated">'.i18n_r(BLOGFILE.'/BLOG_SETTINGS').' '.i18n_r(BLOGFILE.'/WRITE_OK').'</div>';
+			}
+			else
+			{
+				echo '<div class="error"><strong>'.i18n_r(BLOGFILE.'/BLOG_SETTINGS').' '. i18n_r(BLOGFILE.'/DATA_FILE_ERROR').'</strong></div>';
+			}
 		}
 	}
 
@@ -121,27 +129,13 @@ class Blog
 	public function getSettingsData($field)
 	{
 		$settingsData = getXML(BLOGSETTINGS);
-		if($field != "previousblogpage" && $field != "nextblogpage")
+		if(is_object($settingsData->$field))
 		{
-			if(is_object($settingsData->$field))
-			{
-				return $settingsData->$field;	
-			}
-			else
-			{
-				return false;
-			}
+			return $settingsData->$field;	
 		}
 		else
 		{
-			if($field == "nextblogpage")
-			{
-				return i18n_r(BLOGFILE.'/NEWER_POSTS');
-			}
-			elseif($field == "previousblogpage")
-			{
-				return i18n_r(BLOGFILE.'/OLDER_POSTS');
-			}
+			return false;
 		}
 	}
 
@@ -476,7 +470,7 @@ class Blog
 	* @param $next_page string The text for the "Next Blog Page" link 
 	* @return bool
 	*/  
-	public function saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, $rss_title='', $rss_description='', $comments, $disqus_shortname, $disqus_count, $sharethis, $sharethis_id, $addthis, $addthis_id, $ad_data, $all_posts_ad_top, $all_posts_ad_bottom, $post_ad_top, $post_ad_bottom, $post_thubnail, $display_date, $previous_page, $next_page)
+	public function saveSettings($blog_url='', $language='', $excerpt_length='', $show_excerpt='', $posts_per_page='', $recent_posts='', $pretty_urls='', $auto_importer='', $auto_importer_pass='', $display_tags='', $rss_title='', $rss_description='', $comments='', $disqus_shortname='', $disqus_count='', $sharethis='', $sharethis_id='', $addthis='', $addthis_id='', $ad_data='', $all_posts_ad_top='', $all_posts_ad_bottom='', $post_ad_top='', $post_ad_bottom='', $post_thubnail='', $display_date='', $previous_page='', $next_page='')
 	{
 
 		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');

@@ -5,15 +5,22 @@ define('BLOGFILE', $thisfile);
 define('BLOGSETTINGS', GSDATAOTHERPATH  . 'blog_settings.xml');
 
 # add in this plugin's language file
-$settings_lang = getXML(BLOGSETTINGS);
-$LANG = $settings_lang->lang;
+if(file_exists(BLOGSETTINGS))
+{
+	$settings_lang = getXML(BLOGSETTINGS);
+	$LANG = $settings_lang->lang;
+}
+else
+{
+	$LNAG = "en_US";
+}
 i18n_merge($thisfile) || i18n_merge($LANG);
 
 # register plugin
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.1.2', 		
+	'1.1.3', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -1292,7 +1299,7 @@ function show_blog_navigation($index, $total, $count)
 	?>
 		<div class="left">
 		<a href="<?php echo $url . ($index+1); ?>">
-			&larr; <?php echo $Blog->getSettingsData("previousblogpage"); ?>
+			&larr; <?php echo $Blog->getSettingsData("previouspage"); ?>
 		</a>
 		</div>
 		<?php
@@ -1301,7 +1308,7 @@ function show_blog_navigation($index, $total, $count)
 		?>
 			<div class="right">
 			<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
-				<?php echo $Blog->getSettingsData("nextblogpage"); ?> &rarr;
+				<?php echo $Blog->getSettingsData("nextpage"); ?> &rarr;
 			</a>
 			</div>
 		<?php
