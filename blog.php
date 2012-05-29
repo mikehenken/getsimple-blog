@@ -1252,14 +1252,22 @@ function show_posts_page($index=0)
 			$posts = array();	
 		}
 		$count = 0;
+		$lastPostOfPage = false;
 		foreach ($posts as $file)
 		{
 			$count++;
 			show_blog_post($file['filename'], true);
 
+			if($count == sizeof($posts) && sizeof($posts) > 0) 
+			{
+				$lastPostOfPage = true;	
+			}
+
 			if (sizeof($pages) > 1)
 			{
-				show_blog_navigation($index, sizeof($pages), $count);
+				// We know here that we have more than one page.
+				$maxPageIndex = sizeof($pages) - 1;
+				show_blog_navigation($index, $maxPageIndex, $count, $lastPostOfPage);
 				if($count == $Blog->getSettingsData("postsperpage"))
 				{
 					$count = 0;
@@ -1289,12 +1297,18 @@ function show_posts_page($index=0)
 * @param $count current post
 * @return void
 */  
-function show_blog_navigation($index, $total, $count) 
+function show_blog_navigation($index, $total, $count, $lastPostOfPage) 
 {
+
 	$Blog = new Blog;
 	$url = $Blog->get_blog_url('page');
-	echo '<div class="blog_page_navigation">';
-	if ($index < $total && $count >= $Blog->getSettingsData("postperpage")) 
+
+	if ($lastPostOfPage) 
+	{
+		echo '<div class="blog_page_navigation">';
+	}
+	
+	if($index < $total && $lastPostOfPage)
 	{
 	?>
 		<div class="left">
@@ -1302,19 +1316,30 @@ function show_blog_navigation($index, $total, $count)
 			&larr; <?php echo $Blog->getSettingsData("previouspage"); ?>
 		</a>
 		</div>
-		<?php
-		if ($index > 0) 
-		{
-		?>
-			<div class="right">
-			<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
-				<?php echo $Blog->getSettingsData("nextpage"); ?> &rarr;
-			</a>
-			</div>
-		<?php
-		}
+	<?php	
 	}
-	echo '</div>';
+	?>
+		
+	<?php
+	if ($index > 0 && $lastPostOfPage)
+	{
+	?>
+		<div class="right">
+		<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
+			<?php echo $Blog->getSettingsData("nextpage"); ?> &rarr;
+		</a>
+		</div>
+	<?php
+	}
+	?>
+	
+	<?php
+	if ($lastPostOfPage) 
+	{
+		echo '<div id="clear"></div>';
+		echo '</div>';
+	}
+
 }
 
 function show_help_admin()
