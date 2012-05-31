@@ -883,10 +883,7 @@ function blog_display_posts()
 		$content = ob_get_contents();
     ob_end_clean();		
 	}
-	else
-	{
-		return $content;
-	}
+		return $content; // legacy support for non filter hook calls to this function
 }
 
 /** 
