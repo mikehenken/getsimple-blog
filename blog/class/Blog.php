@@ -69,7 +69,18 @@ class Blog
 			$auto_importer = 'N';
 			$auto_importer_pass = 'passphrase';
 			$display_tags = 'Y';
-			$create_rss_file = $this->saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', i18n_r(BLOGFILE.'/NEWER_POSTS'), i18n_r(BLOGFILE.'/OLDER_POSTS'));
+			$css_code ='.blog_post_thumbnail {&#xD;
+	width:200px;&#xD;
+	height:auto;&#xD;
+	float:left;&#xD;
+	padding-right:10px;&#xD;
+	padding-bottom:10px;&#xD;
+}&#xD;
+&#xD;
+.blog_post_container {&#xD;
+	clear:both;&#xD;
+}					';
+			$create_rss_file = $this->saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', i18n_r(BLOGFILE.'/NEWER_POSTS'), i18n_r(BLOGFILE.'/OLDER_POSTS'), '', $css_code);
 			if($create_rss_file)
 			{
 				echo '<div class="updated">'.i18n_r(BLOGFILE.'/BLOG_SETTINGS').' '.i18n_r(BLOGFILE.'/WRITE_OK').'</div>';
@@ -468,9 +479,11 @@ class Blog
 	* @param $display_date string Whether post date should be displayed 
 	* @param $previous_page string The text for the "Previous Blog Page" link 
 	* @param $next_page string The text for the "Next Blog Page" link 
+	* @param $display_css string Whether css should be placed in blog
+	* @param $css_code string The css code to be placed in blog
 	* @return bool
 	*/  
-	public function saveSettings($blog_url='', $language='', $excerpt_length='', $show_excerpt='', $posts_per_page='', $recent_posts='', $pretty_urls='', $auto_importer='', $auto_importer_pass='', $display_tags='', $rss_title='', $rss_description='', $comments='', $disqus_shortname='', $disqus_count='', $sharethis='', $sharethis_id='', $addthis='', $addthis_id='', $ad_data='', $all_posts_ad_top='', $all_posts_ad_bottom='', $post_ad_top='', $post_ad_bottom='', $post_thubnail='', $display_date='', $previous_page='', $next_page='')
+	public function saveSettings($blog_url='', $language='', $excerpt_length='', $show_excerpt='', $posts_per_page='', $recent_posts='', $pretty_urls='', $auto_importer='', $auto_importer_pass='', $display_tags='', $rss_title='', $rss_description='', $comments='', $disqus_shortname='', $disqus_count='', $sharethis='', $sharethis_id='', $addthis='', $addthis_id='', $ad_data='', $all_posts_ad_top='', $all_posts_ad_bottom='', $post_ad_top='', $post_ad_bottom='', $post_thubnail='', $display_date='', $previous_page='', $next_page='', $display_css='', $css_code='')
 	{
 
 		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');
@@ -502,6 +515,8 @@ class Blog
 		$xml->addChild('postthumbnail', $post_thubnail);
 		$xml->addChild('previouspage', $previous_page);
 		$xml->addChild('nextpage', $next_page);
+		$xml->addChild('displaycss', $display_css);
+		$xml->addChild('csscode', $css_code);
 		$blog_settings = XMLsave($xml, BLOGSETTINGS);
 		if($blog_settings)
 		{

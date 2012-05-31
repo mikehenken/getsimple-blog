@@ -232,7 +232,7 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
-		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom'], $_POST['post_thumbnail'], $_POST['display_date'], $_POST['previous_page'], $_POST['next_page']);
+		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom'], $_POST['post_thumbnail'], $_POST['display_date'], $_POST['previous_page'], $_POST['next_page'], $_POST['display_css'], $_POST['css_code']);
 	}
 	?>
 	<h3><?php i18n(BLOGFILE.'/BLOG_SETTINGS'); ?></h3>
@@ -451,15 +451,6 @@ function show_settings_admin()
 		</div>
 		<div class="clear"></div>
 		<h3><?php i18n(BLOGFILE.'/AD_TITLE'); ?></h3>
-		<div class="leftec" style="width:100%">
-			<p>
-				<label for="ad_data"><?php i18n(BLOGFILE.'/AD_DATA'); ?>:</label>
-				<textarea name="ad_data" class="text"  style="width:100%;height:100px;">
-					<?php echo $Blog->getSettingsData("addata"); ?>
-				</textarea>
-			</p>
-		</div>
-		<div class="clear"></div>
 		<div class="leftsec">
 			<p>
 				<label for="all_posts_ad_top"><?php i18n(BLOGFILE.'/DISPLAY_ALL_POSTS_AD_TOP'); ?>:</label>
@@ -502,12 +493,133 @@ function show_settings_admin()
 			</p>
 		</div>
 		<div class="clear"></div>
+		<div class="leftec" style="width:100%">
+			<p>
+				<label for="ad_data"><?php i18n(BLOGFILE.'/AD_DATA'); ?>:</label>
+				<textarea name="ad_data" class="text"  style="width:100%;height:100px;">
+					<?php echo $Blog->getSettingsData("addata"); ?>
+				</textarea>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<h3><?php i18n(BLOGFILE.'/CSS_SETTINGS'); ?></h3>
+		<div class="leftsec">
+			<p>
+				<label for="display_css"><?php i18n(BLOGFILE.'/DISPLAY_CSS'); ?>: <a id="css_help" href="#css_data">Click here to view available classes and ids</a></label>
+				<div style="display:none;">
+					<div id="css_data">
+						<h3>Available ids and classes</h3>
+						<ul>
+							<li>.blog_post_container (<?php i18n(BLOGFILE.'/CSS_POST_CONTAINER_HINT'); ?>)</li>
+							<li>.blog_post_title</li>
+							<li>.blog_post_date</li>
+							<li>.blog_post_content (<?php i18n(BLOGFILE.'/CSS_POST_CONTENT_HINT'); ?>)</li>
+							<li>.blog_tags</li>
+							<li>.blog_page_navigation</li>
+							<li>.blog_prev_page</li>
+							<li>.blog_next_page</li>
+							<li>.blog_go_back</li>
+							<li>.blog_search_button</li>
+							<li>.blog_search_input</li>
+							<li>.blog_search_header</li>
+							<li>#disqus_thread</li>
+							<li>#blog_search (id of search form)</li>
+						</ul><br/>
+						<h3>Below is an example of a single blog post</h3>
+<pre>
+&lt;div class=&quot;blog_post_container&quot;&gt;<br />
+	&lt;h3 class=&quot;blog_post_title&quot;&gt;&lt;a href=&quot;http://link&quot; class=&quot;blog_post_link&quot;&gt;The Post Title&lt;/a&gt;&lt;/h3&gt;<br />
+	&lt;p class=&quot;blog_post_date&quot;&gt;<br />
+		May 22, 2012			<br />
+	&lt;/p&gt;<br />
+	&lt;p class=&quot;blog_post_content&quot;&gt;<br />
+		&lt;img src=&quot;http://michaelhenken.com/plugin_tests/blog/data/uploads/math-fail-pics-421.jpg&quot; style=&quot;&quot; class=&quot;blog_post_thumbnail&quot; /&gt;<br />
+		An essential part of programming is evaluating conditions using if/else and switch/case statements. If / Else statements are easy to code and..	<br />
+	&lt;/p&gt;<br />
+&lt;/div&gt;<br />
+&lt;p class=&quot;blog_tags&quot;&gt;<br />
+	&lt;b&gt;Tags :&lt;/b&gt; <br />
+	&lt;a href=&quot;http://link&quot;&gt;tags1&lt;/a&gt; &lt;a href=&quot;http://link&quot;&gt;tags2&lt;/a&gt;<br />
+&lt;/p&gt;<br />
+&lt;div class=&quot;blog_page_navigation&quot;&gt;		<br />
+	&lt;div class=&quot;blog_prev_page&quot;&gt;<br />
+		&lt;a href=&quot;http://link&quot;&gt;<br />
+		&amp;larr; Older Posts		&lt;/a&gt;<br />
+	&lt;/div&gt;<br />
+	&lt;div class=&quot;blog_next_page&quot;&gt;<br />
+		&lt;a href=&quot;http://link&quot;&gt;<br />
+			Newer Posts &amp;rarr;<br />
+		&lt;/a&gt;<br />
+	&lt;/div&gt;<br />
+&lt;/div&gt;
+</pre>
+				</div>
+			</div>
+				<script type="text/javascript">
+					$("a#css_help").fancybox({
+						'hideOnContentClick': true
+					});
+				</script>
+				<input name="display_css" type="radio" value="Y" <?php if ($Blog->getSettingsData("displaycss") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="display_css" type="radio" value="N" <?php if ($Blog->getSettingsData("displaycss") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftec" style="width:100%">
+			<p>
+				<label for="css_code"><?php i18n(BLOGFILE.'/CSS_CODE'); ?>:</label>
+				<textarea name="css_code" class="text"  style="width:100%;height:100px;">
+					<?php echo $Blog->getSettingsData("csscode"); ?>
+				</textarea>
+			</p>
+		</div>
+		<div class="clear"></div>
+		<h3><?php i18n(BLOGFILE.'/HTACCESS_HEADLINE'); ?></h3>
 		<?php global $PRETTYURLS; if ($PRETTYURLS == 1) { ?>
 			<p class="inline">
 				<input name="pretty_urls" type="checkbox" value="Y" <?php if ($Blog->getSettingsData("prettyurls") == 'Y') echo 'checked'; ?> />&nbsp;
-				<label for="pretty_urls"><?php i18n(BLOGFILE.'/PRETTY_URLS'); ?></label> - <span style="color:red;font-weight:bold;">Not Working in v1.0!</span> - 
-				<span class="hint"><?php i18n(BLOGFILE.'/PRETTY_URLS_PARA'); ?><span><</span>
+				<label for="pretty_urls"><?php i18n(BLOGFILE.'/PRETTY_URLS'); ?></label> - <span style="color:red;font-weight:bold;"><a href="load.php?id=blog&settings&htaccess#htaccess">View What Your Sites .htaccess Should Be!</a></span> - 
+				<span class="hint"><?php i18n(BLOGFILE.'/PRETTY_URLS_PARA'); ?></span>
 			</p>
+			<?php if($Blog->getSettingsData("prettyurls") == 'Y' && isset($_GET['htaccess'])) { ?>
+				<div class="htaccess" id="htaccess" style="padding: 10px;background-color: #F6F6F6;margin: 10px;">
+					<pre>
+AddDefaultCharset UTF-8
+Options -Indexes
+
+# blocks direct access to the XML files - they hold all the data!
+&lt;Files ~ "\.xml$"&gt;
+    Order allow,deny
+    Deny from all
+    Satisfy All
+&lt;/Files&gt;
+&lt;Files sitemap.xml&gt;
+    Order allow,deny
+    Allow from all
+    Satisfy All
+&lt;/Files&gt;
+
+RewriteEngine on
+
+# Usually RewriteBase is just '/', but
+# replace it with your subdirectory path -- IMPORTANT -> if your site is located in subfolder you need to change this to reflect (eg: /subfolder/)
+RewriteBase /
+
+RewriteRule ^<?php if($Blog->getSettingsData("blogurl") != 'index') { echo $Blog->getSettingsData("blogurl").'/'; } ?>post/([^/.]+)/?$ index.php?id=<?php echo $Blog->getSettingsData("blogurl"); ?>&post=$1 [L]
+RewriteRule ^<?php if($Blog->getSettingsData("blogurl") != 'index') { echo $Blog->getSettingsData("blogurl").'/'; } ?>tag/([^/.]+)/?$ index.php?id=<?php echo $Blog->getSettingsData("blogurl"); ?>&tag=$1 [L]
+RewriteRule ^<?php if($Blog->getSettingsData("blogurl") != 'index') { echo $Blog->getSettingsData("blogurl").'/'; } ?>page/([^/.]+)/?$ index.php?id=<?php echo $Blog->getSettingsData("blogurl"); ?>&page=$1 [L]
+RewriteRule ^<?php if($Blog->getSettingsData("blogurl") != 'index') { echo $Blog->getSettingsData("blogurl").'/'; } ?>archive/([^/.]+)/?$ index.php?id=<?php echo $Blog->getSettingsData("blogurl"); ?>&archive=$1 [L]
+RewriteRule ^<?php if($Blog->getSettingsData("blogurl") != 'index') { echo $Blog->getSettingsData("blogurl").'/'; } ?>category/([^/.]+)/?$ index.php?id=<?php echo $Blog->getSettingsData("blogurl"); ?>&category=$1 [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule /?([A-Za-z0-9_-]+)/?$ index.php?id=$1 [QSA,L]
+					</pre>
+				</div>
+			<?php } ?>
 		<?php } ?>
 		<p>
 		<span>
@@ -846,7 +958,12 @@ function blog_display_posts()
 	{
 		$content = '';
 		ob_start();
-		
+		if($Blog->getSettingsData("displaycss") == 'Y')
+		{
+			echo "<style>\n";
+			echo $Blog->getSettingsData("csscode");
+			echo "\n</style>";
+		}
 		if(isset($_GET['post']))
 		{
 			$post_file = BLOGPOSTSFOLDER.$_GET['post'].'.xml';
@@ -954,7 +1071,7 @@ function show_blog_post($slug, $excerpt=false)
 	<?php
 	if(!empty($post->tags) && $Blog->getSettingsData("displaytags") != 'N')
 	{
-		$tag_url = $Blog->get_blog_url('tag').$post->slug;
+		$tag_url = $Blog->get_blog_url('tag');
 		$tags = explode(",", $post->tags);
 		?>
 		<p class="blog_tags"><b><?php i18n(BLOGFILE.'/TAGS'); ?> :</b> 
@@ -996,10 +1113,10 @@ function show_blog_categories()
 {
 	$Blog = new Blog;
 	$categories = getXML(BLOGCATEGORYFILE);
-	$url = $Blog->get_blog_url();
+	$url = $Blog->get_blog_url('category');
 	foreach($categories as $category)
 	{
-		echo '<li><a href="'.$url.'?category='.$category.'">'.$category.'</a></li>';
+		echo '<li><a href="'.$url.$category.'">'.$category.'</a></li>';
 	}
 	echo '<li><a href="'.$url.'">';
 	i18n(BLOGFILE.'/ALL_CATEOGIRES');
@@ -1043,8 +1160,8 @@ function show_blog_search()
 	$url = $Blog->get_blog_url();
 	?>
 	<form id="blog_search" action="<?php echo $url; ?>" method="post">
-		<input type="text" class="text" name="keyphrase" />
-		<input type="submit" class="submit" name="search_blog" value="<?php i18n(BLOGFILE.'/SEARCH'); ?>" />
+		<input type="text" class="blog_search_input" name="keyphrase" />
+		<input type="submit" class="blog_search_button" name="search_blog" value="<?php i18n(BLOGFILE.'/SEARCH'); ?>" />
 	</form>
 	<?php
 }
@@ -1319,7 +1436,7 @@ function show_blog_navigation($index, $total, $count, $lastPostOfPage)
 	?>
 		<div class="left">
 		<a href="<?php echo $url . ($index+1); ?>">
-			&larr; <?php echo $Blog->getSettingsData("previouspage"); ?>
+			&larr; <?php echo $Blog->getSettingsData("nextpage"); ?>
 		</a>
 		</div>
 	<?php	
@@ -1332,7 +1449,7 @@ function show_blog_navigation($index, $total, $count, $lastPostOfPage)
 	?>
 		<div class="right">
 		<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
-			<?php echo $Blog->getSettingsData("nextpage"); ?> &rarr;
+			<?php echo $Blog->getSettingsData("previouspage"); ?> &rarr;
 		</a>
 		</div>
 	<?php
