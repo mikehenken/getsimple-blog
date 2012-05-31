@@ -29,7 +29,8 @@ register_plugin(
 );
 
 add_action('pages-sidebar','createSideMenu',array($thisfile, i18n_r(BLOGFILE.'/PLUGIN_SIDE')));
-add_filter('content', 'blog_display_posts');
+# add_filter('content', 'blog_display_posts');
+add_action('index-pretemplate', 'blog_display_posts');
 add_action('theme-header', 'shareThisToolHeader');
 define('BLOGCATEGORYFILE', GSDATAOTHERPATH  . 'blog_categories.xml');
 define('BLOGRSSFILE', GSDATAOTHERPATH  . 'blog_rss.xml');
@@ -834,13 +835,18 @@ function savePost()
 * 
 * @return void
 */  
-function blog_display_posts($content) 
+function blog_display_posts() 
 {
+	GLOBAL $content;
+	
 	$Blog = new Blog;
 	$slug = base64_encode(return_page_slug());
 	$blog_slug = base64_encode($Blog->getSettingsData("blogurl"));
 	if($slug == $blog_slug)
 	{
+		$content = '';
+		ob_start();
+		
 		if(isset($_GET['post']))
 		{
 			$post_file = BLOGPOSTSFOLDER.$_GET['post'].'.xml';
@@ -873,11 +879,11 @@ function blog_display_posts($content)
 		{
 			show_all_blog_posts();
 		}
+		
+		$content = ob_get_contents();
+    ob_end_clean();		
 	}
-	else
-	{
-		return $content;
-	}
+		return $content; // legacy support for non filter hook calls to this function
 }
 
 /** 
