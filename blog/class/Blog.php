@@ -59,16 +59,6 @@ class Blog
 		}
 		if(!file_exists(BLOGSETTINGS))
 		{
-			$blog_url = "index";
-			$language = "en_US";
-			$excerpt_length = '350';
-			$show_excerpt = 'Y';
-			$posts_per_page = '8';
-			$recent_posts = '4';
-			$pretty_urls = 'N';
-			$auto_importer = 'N';
-			$auto_importer_pass = 'passphrase';
-			$display_tags = 'Y';
 			$css_code ='.blog_post_thumbnail {&#xD;
 	width:200px;&#xD;
 	height:auto;&#xD;
@@ -80,7 +70,27 @@ class Blog
 .blog_post_container {&#xD;
 	clear:both;&#xD;
 }					';
-			$create_rss_file = $this->saveSettings($blog_url, $language, $excerpt_length, $show_excerpt, $posts_per_page, $recent_posts, $pretty_urls, $auto_importer, $auto_importer_pass, $display_tags, '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', i18n_r(BLOGFILE.'/NEWER_POSTS'), i18n_r(BLOGFILE.'/OLDER_POSTS'), '', $css_code);
+			 $settings_array = array('blogurl' => "index",
+									 'lang' => "en_US",
+									 'excerptlength' => '350',
+									 'postformat' => 'N',
+									 'postperpage' => '8',
+									 'recentposts' => '4',
+									 'prettyurls' => 'N',
+									 'autoimporter' => 'N',
+									 'autoimporterpass' => 'passphrase',
+									 'displaytags' => 'Y',
+									 'rsstitle' => '',
+									 'rssdescription' => '',
+									 'comments' => '',
+									 'postthumbnail' => 'N',
+									 'displaydate' => 'Y',
+									 'previouspage' => i18n_r(BLOGFILE.'/NEWER_POSTS'),
+									 'nextpage' => i18n_r(BLOGFILE.'/OLDER_POSTS'),
+									 'displaycss' => 'Y',
+									 'csscode' => $css_code,
+									 'rssfeedposts' => '10');
+			$create_rss_file = $this->saveSettings($settings_array);
 			if($create_rss_file)
 			{
 				echo '<div class="updated">'.i18n_r(BLOGFILE.'/BLOG_SETTINGS').' '.i18n_r(BLOGFILE.'/WRITE_OK').'</div>';
@@ -314,9 +324,11 @@ class Blog
 		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');
 		foreach($category_file->category as $ind_category)
 		{
-			$xml->addChild('category', $ind_category);
+			$parent_nodes_node = $xml->addChild('category');
+				$parent_nodes_node->addCData($ind_category);
 		}
-		$xml->addChild('category', $category);
+		$parent_nodes_node = $xml->addChild('category');
+			$parent_nodes_node->addCData($category);
 		$add_category = XMLsave($xml, BLOGCATEGORYFILE);
 		if($add_category)
 		{
@@ -451,72 +463,18 @@ class Blog
 	/** 
 	* Save Blog Plugin Settings
 	* 
-	* @param $blog_url string the page to display the bog
-	* @param $language string the language of the plugin
-	* @param $excerpt_length int the length of the excerpt
-	* @param $show_excerpt string whether or not the excerpt should be displayed
-	* @param $posts_per_page int the amount of posts per page
-	* @param $recent_posts int amount of recent posts that should be displayed 
-	* @param $pretty_urls string whether fancy urls should be supported
-	* @param $auto_importer string whether auto importer is enabled
-	* @param $auto_importer_pass string passphrase for auto importer
-	* @param $display_tags string whether to display tags in post summary and on post details page
-	* @param $rss_title string The title to be displayed in the blog RSS feed
-	* @param $rss_description string string The description nto be displayed in the RSS feed
-	* @param $comments string Whether comments should be enabled
-	* @param $disqus_shortname string The disqus account shortname 
-	* @param $disqus_count string Whether to display the disqus post counter on each blog page
-	* @param $sharethis string Whether sharethis widget is enabled 
-	* @param $sharethis_id string The developer ID for sharethis widget 
-	* @param $addthis string Whether addthis widget is enabled 
-	* @param $addthis_id string  The developer id for addthis widget
-	* @param $ad_data string the advertisement data for blog
-	* @param $all_posts_ad_top string Display advertisement at the top of all posts page
-	* @param $all_posts_ad_bottom string Display advertisement at the bottom of all posts page
-	* @param $post_ad_top string Display individual post top advertisement 
-	* @param $post_ad_bottom string Display individual post bottom advertisement 
-	* @param string $post_thumbnail Whether posts should have thumbnails enabled - If not Y then even if a post has a thumbnail uploaded, it will not display
-	* @param $display_date string Whether post date should be displayed 
-	* @param $previous_page string The text for the "Previous Blog Page" link 
-	* @param $next_page string The text for the "Next Blog Page" link 
-	* @param $display_css string Whether css should be placed in blog
-	* @param $css_code string The css code to be placed in blog
+	* @param array $post_data The array of each xml node to be added. The key for each array item will be the node and the value will be the nodes contents
 	* @return bool
 	*/  
-	public function saveSettings($blog_url='', $language='', $excerpt_length='', $show_excerpt='', $posts_per_page='', $recent_posts='', $pretty_urls='', $auto_importer='', $auto_importer_pass='', $display_tags='', $rss_title='', $rss_description='', $comments='', $disqus_shortname='', $disqus_count='', $sharethis='', $sharethis_id='', $addthis='', $addthis_id='', $ad_data='', $all_posts_ad_top='', $all_posts_ad_bottom='', $post_ad_top='', $post_ad_bottom='', $post_thubnail='', $display_date='', $previous_page='', $next_page='', $display_css='', $css_code='')
+	public function saveSettings($post_data)
 	{
 
 		$xml = new SimpleXMLExtended('<?xml version="1.0"?><item></item>');
-		$xml->addChild('blogurl', $blog_url);
-		$xml->addChild('lang', $language);
-		$xml->addChild('excerptlength', $excerpt_length);
-		$xml->addChild('postformat', $show_excerpt);
-		$xml->addChild('postperpage', $posts_per_page);
-		$xml->addChild('recentposts', $recent_posts);
-		$xml->addChild('prettyurls', $pretty_urls);
-		$xml->addChild('autoimporter', $auto_importer);
-		$xml->addChild('autoimporterpass', $auto_importer_pass);
-		$xml->addChild('displaytags', $display_tags);
-		$xml->addChild('displaydate', $display_date);
-		$xml->addChild('rsstitle', $rss_title);
-		$xml->addChild('rssdescription', $rss_description);
-		$xml->addChild('comments', $comments);
-		$xml->addChild('disqusshortname', $disqus_shortname);
-		$xml->addChild('disquscount', $disqus_count);
-		$xml->addChild('sharethis', $sharethis);
-		$xml->addChild('sharethisid', $sharethis_id);
-		$xml->addChild('addthis', $addthis);
-		$xml->addChild('addthisid', $addthis_id);
-		$xml->addChild('addata', $ad_data);
-		$xml->addChild('allpostsadtop', $all_posts_ad_top);
-		$xml->addChild('allpostsadbottom', $all_posts_ad_bottom);
-		$xml->addChild('postadtop', $post_ad_top);
-		$xml->addChild('postadbottom', $post_ad_bottom);
-		$xml->addChild('postthumbnail', $post_thubnail);
-		$xml->addChild('previouspage', $previous_page);
-		$xml->addChild('nextpage', $next_page);
-		$xml->addChild('displaycss', $display_css);
-		$xml->addChild('csscode', $css_code);
+		foreach($post_data as $key => $value)
+		{
+			$parent_nodes_node = $xml->addChild($key);
+				$parent_nodes_node->addCData($value);
+		}
 		$blog_settings = XMLsave($xml, BLOGSETTINGS);
 		if($blog_settings)
 		{
@@ -731,7 +689,7 @@ class Blog
 		$RSSString                              .= "<language>".str_replace("_", "-",$this->getSettingsData("lang"))."</language>\n";
 
 		$post_array = glob(BLOGPOSTSFOLDER . "/*.xml");
-		$limit = "10";
+		$limit = $this->getSettingsData("rssfeedposts");
 		array_multisort(array_map('filemtime', $post_array), SORT_DESC, $post_array); 
 		$post_array = array_slice($post_array, 0, $limit);
 

@@ -1,4 +1,8 @@
 <?php
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 1);
+ini_set('error_log', 1);
+error_reporting(E_ALL);
 # get correct id for plugin
 $thisfile = basename(__FILE__, ".php");
 define('BLOGFILE', $thisfile);
@@ -20,7 +24,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.1.4', 		
+	'1.1.5', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -232,7 +236,38 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
-		$Blog->saveSettings($_POST['blog_url'], $_POST['language'], $_POST['excerpt_length'], $_POST['show_excerpt'], $_POST['posts_per_page'], $_POST['recent_posts'], $prettyurls, $_POST['auto_importer'], $_POST['auto_importer_pass'], $_POST['show_tags'], $_POST['rss_title'], $_POST['rss_description'], $_POST['comments'], $_POST['disqus_shortname'], $_POST['disqus_count'], $_POST['sharethis'], $_POST['sharethis_id'], $_POST['addthis'], $_POST['addthis_id'], $_POST['ad_data'], $_POST['all_posts_ad_top'], $_POST['all_posts_ad_bottom'], $_POST['post_ad_top'], $_POST['post_ad_bottom'], $_POST['post_thumbnail'], $_POST['display_date'], $_POST['previous_page'], $_POST['next_page'], $_POST['display_css'], $_POST['css_code']);
+		$blog_settings_array = array('blogurl' => $_POST['blog_url'],
+									 'lang' => $_POST['language'],
+									 'excerptlength' => $_POST['excerpt_length'],
+									 'postformat' => $_POST['show_excerpt'],
+									 'postperpage' => $_POST['posts_per_page'],
+									 'recentposts' => $_POST['recent_posts'],
+									 'prettyurls' => $prettyurls,
+									 'autoimporter' => $_POST['auto_importer'],
+									 'autoimporterpass' => $_POST['auto_importer_pass'],
+									 'displaytags' => $_POST['show_tags'],
+									 'rsstitle' => $_POST['rss_title'],
+									 'rssdescription' => $_POST['rss_description'],
+									 'comments' => $_POST['comments'],
+									 'disqusshortname' => $_POST['disqus_shortname'],
+									 'disquscount' => $_POST['disqus_count'],
+									 'sharethis' => $_POST['sharethis'],
+									 'sharethisid' => $_POST['sharethis_id'],
+									 'addthis' => $_POST['addthis'],
+									 'addthisid' => $_POST['addthis_id'],
+									 'addata' => $_POST['ad_data'],
+									 'allpostsadtop' => $_POST['all_posts_ad_top'],
+									 'allpostsadbottom' => $_POST['all_posts_ad_bottom'],
+									 'postadtop' => $_POST['post_ad_top'],
+									 'postadbottom' => $_POST['post_ad_bottom'],
+									 'postthumbnail' => $_POST['post_thumbnail'],
+									 'displaydate' => $_POST['display_date'],
+									 'previouspage' => $_POST['previous_page'],
+									 'nextpage' => $_POST['next_page'],
+									 'displaycss' => $_POST['display_css'],
+									 'csscode' => $_POST['css_code'],
+									 'rssfeedposts' => $_POST['rss_feed_num_posts']);
+		$Blog->saveSettings($blog_settings_array);
 	}
 	?>
 	<h3><?php i18n(BLOGFILE.'/BLOG_SETTINGS'); ?></h3>
@@ -384,6 +419,13 @@ function show_settings_admin()
 			<p>
 				<label for="rss_description"><?php i18n(BLOGFILE.'/RSS_DESCRIPTION'); ?>:</label>
 				<input class="text" type="text" name="rss_description" value="<?php echo $Blog->getSettingsData("rssdescription"); ?>" />
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="rss_feed_num_posts"><?php i18n(BLOGFILE.'/RSS_FEED_NUM_POSTS'); ?>:</label>
+				<input class="text" type="text" name="rss_feed_num_posts" value="<?php echo $Blog->getSettingsData("rssfeedposts"); ?>" />
 			</p>
 		</div>
 		<div class="clear"></div>

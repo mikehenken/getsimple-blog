@@ -150,7 +150,8 @@ $i18n = array(
 	'HTACCESS_HEADLINE' => 'Pretty URL Settings',
 	'CSS_POST_CONTAINER_HINT' => 'wrapper around each post. from title to end of content',
 	'CSS_POST_CONTENT_HINT' => 'includes the post content and thumbnail',
-	'CSS_SETTINGS' => 'CSS Settings',
+	//ADDED VERSION 1.1.5
+	'RSS_FEED_NUM_POSTS' => '&num; of posts in RSS feed',
 	'CSS_SETTINGS' => 'CSS Settings',
 	'CSS_SETTINGS' => 'CSS Settings',
 	'CSS_SETTINGS' => 'CSS Settings'
