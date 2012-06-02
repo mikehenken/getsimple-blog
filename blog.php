@@ -1,12 +1,6 @@
 <?php
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
-ini_set('error_log', 1);
-error_reporting(E_ALL);
-# get correct id for plugin
 $thisfile = basename(__FILE__, ".php");
-define('BLOGFILE', $thisfile);
-define('BLOGSETTINGS', GSDATAOTHERPATH  . 'blog_settings.xml');
+require_once("blog/inc/common.php");
 
 # add in this plugin's language file
 if(file_exists(BLOGSETTINGS))
@@ -24,7 +18,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.1.5', 		
+	'1.1.6', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -36,12 +30,6 @@ add_action('pages-sidebar','createSideMenu',array($thisfile, i18n_r(BLOGFILE.'/P
 # add_filter('content', 'blog_display_posts');
 add_action('index-pretemplate', 'blog_display_posts');
 add_action('theme-header', 'shareThisToolHeader');
-define('BLOGCATEGORYFILE', GSDATAOTHERPATH  . 'blog_categories.xml');
-define('BLOGRSSFILE', GSDATAOTHERPATH  . 'blog_rss.xml');
-define('BLOGPLUGINFOLDER', GSPLUGINPATH.'blog/');
-define('BLOGPOSTSFOLDER', GSDATAPATH.'blog/');
-define('BLOGCACHEFILE', GSDATAOTHERPATH  . 'blog_cache.xml');
-
 //Include Blog class
 require_once(BLOGPLUGINFOLDER.'class/Blog.php');
 
@@ -53,6 +41,11 @@ require_once(BLOGPLUGINFOLDER.'class/Blog.php');
 function showAdminNav()
 {
 	?>
+	<style>
+		img.rss_feed {
+			margin-left:14px;
+		}
+	</style>
 	<div style="width:100%;margin:0 -15px -15px -10px;padding:0px;">
 		<h3  class="floated"><?php i18n(BLOGFILE.'/PLUGIN_TITLE'); ?></h3>
 		<div class="edit-nav clearfix">
@@ -538,9 +531,7 @@ function show_settings_admin()
 		<div class="leftec" style="width:100%">
 			<p>
 				<label for="ad_data"><?php i18n(BLOGFILE.'/AD_DATA'); ?>:</label>
-				<textarea name="ad_data" class="text"  style="width:100%;height:100px;">
-					<?php echo $Blog->getSettingsData("addata"); ?>
-				</textarea>
+				<textarea name="ad_data" class="text"  style="width:100%;height:100px;"><?php echo $Blog->getSettingsData("addata"); ?></textarea>
 			</p>
 		</div>
 		<div class="clear"></div>
@@ -613,9 +604,7 @@ function show_settings_admin()
 		<div class="leftec" style="width:100%">
 			<p>
 				<label for="css_code"><?php i18n(BLOGFILE.'/CSS_CODE'); ?>:</label>
-				<textarea name="css_code" class="text"  style="width:100%;height:100px;">
-					<?php echo $Blog->getSettingsData("csscode"); ?>
-				</textarea>
+				<textarea name="css_code" class="text"  style="width:100%;height:100px;"><?php echo $Blog->getSettingsData("csscode"); ?></textarea>
 			</p>
 		</div>
 		<div class="clear"></div>
@@ -826,7 +815,8 @@ function editPost($post_id=null)
 */  
 function edit_categories()
 {
-	  $category_file = getXML(BLOGCATEGORYFILE);
+	$Blog = new Blog;
+	$category_file = getXML(BLOGCATEGORYFILE);
 ?>
 	<h3><?php i18n(BLOGFILE.'/MANAGE_CATEGORIES'); ?></h3>
 	<form class="largeform" action="load.php?id=blog&categories&edit_category" method="post">
@@ -839,14 +829,20 @@ function edit_categories()
 	  <div class="clear"></div>
 	  <table class="highlight">
 	  <tr>
-	  <th><?php i18n(BLOGFILE.'/CATEGORY_NAME'); ?></th><th><?php i18n(BLOGFILE.'/DELETE'); ?></th>
+	  <th><?php i18n(BLOGFILE.'/CATEGORY_NAME'); ?></th>
+	  <th><?php i18n(BLOGFILE.'/RSS_FEED'); ?></th>
+	  <th><?php i18n(BLOGFILE.'/DELETE'); ?></th>
 	  </tr>
 	  <?php
 	foreach($category_file->category as $category)
 	{
-	echo '
-	<tr><td>'.$category.'</td><td><a href="load.php?id=blog&categories&delete_category='.$category.'">X</a></td></tr>
-	';
+		?>
+		<tr>
+			<td><?php echo $category; ?></td>
+			<td><a href="<?php echo $Blog->get_blog_url('rss').'?filter=category&value='.$category; ?>" target="_blank"><img src="../plugins/blog/images/rss_feed.png" class="rss_feed" /></a></td>
+			<td class="delete" ><a href="load.php?id=blog&categories&delete_category=<?php echo $category; ?>" title="Delete Category: <?php echo $category; ?>" >X</a></td>
+		</tr>
+		<?php
 	}
 	  ?>
 	  </table>
@@ -1216,7 +1212,6 @@ function show_blog_search()
 function show_blog_archives()
 {
 	$Blog = new Blog;
-	$posts = $Blog->listPosts();
 	$archives = $Blog->get_blog_archives();
 	if (!empty($archives)) 
 	{
@@ -1238,14 +1233,14 @@ function show_blog_archives()
 function show_blog_archive($archive)
 {
 	$Blog = new Blog;
-	$posts = $Blog->listPosts();
+	$posts = $Blog->listPosts(true, true);
 	foreach ($posts as $file) 
 	{
-		$data = getXML($file);
+		$data = getXML($file['filename']);
 		$date = strtotime($data->date);
 		if (date('Ym', $date) == $archive)
 		{
-			show_blog_post($file, true);
+			show_blog_post($file['filename'], true);
 		}
 	}
 }
@@ -1282,14 +1277,14 @@ function show_blog_recent_posts()
 function show_blog_tag($tag)
 {
 	$Blog = new Blog;
-	$all_posts = $Blog->listPosts();
+	$all_posts = $Blog->listPosts(true, true);
 	foreach ($all_posts as $file) 
 	{
-		$data = getXML($file);
+		$data = getXML($file['filename']);
 		$tags = explode(',', $data->tags);
 		if (in_array($tag, $tags))
 		{
-			show_blog_post($file, true);	
+			show_blog_post($file['filename'], true);	
 		}
 	}
 }
@@ -1534,7 +1529,11 @@ function show_help_admin()
 	</p>
 	<p>
 		<label><?php i18n(BLOGFILE.'/RSS_LOCATION'); ?> :</label>
-		<a href="<?php echo $SITEURL."rss.rss"; ?>" target="_blank"><?php echo $SITEURL."rss.rss"; ?>
+		<a href="<?php echo $SITEURL."rss.rss"; ?>" target="_blank"><?php echo $SITEURL."rss.rss"; ?></a>
+	</p>
+	<p>
+		<label><?php i18n(BLOGFILE.'/DYNAMIC_RSS_LOCATION'); ?> :</label>
+		<a href="<?php echo $SITEURL."plugins/blog/rss.php"; ?>" target="_blank"><?php echo $SITEURL."plugins/blog/rss.php"; ?></a>
 	</p>
 	<?php
 }

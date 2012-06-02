@@ -153,6 +153,7 @@ $i18n = array(
 	//ADDED VERSION 1.1.5
 	'RSS_FEED_NUM_POSTS' => '&num; of posts in RSS feed',
 	'CSS_SETTINGS' => 'CSS Settings',
-	'CSS_SETTINGS' => 'CSS Settings',
-	'CSS_SETTINGS' => 'CSS Settings'
+	//ADDED VERSION 1.1.6
+	'RSS_FEED' => 'RSS Feed',
+	'DYNAMIC_RSS_LOCATION' => 'Dynamic RSS Feed Location (Generates RSS feed on the fly)'
 );

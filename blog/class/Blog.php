@@ -130,6 +130,9 @@ class Blog
 					$data = getXML($post);
 					$posts[$count]['filename'] = $post;
 					$posts[$count]['date'] = (string) $data->date;
+					$posts[$count]['category'] = (string) $data->category;
+					$posts[$count]['tags'] = (string) $data->tags;
+					if(isset($data->author)) { $posts[$count]['authur'] = (string) $data->author; }
 					$count++;
 				}
 				if($sort_dates != false && $array != false)
@@ -139,6 +142,44 @@ class Blog
 				return $posts;
 			}
 		}
+	}
+
+	public function filterPosts($filter, $value)
+	{
+		$posts = $this->listPosts(true, true);
+		$count = 0;
+		foreach($posts as $post)
+		{
+			if($filter == 'category')
+			{
+				if($post['category'] == $value)
+				{
+					$filtered_posts[$count] = $post;
+				}
+			}
+			elseif($filter == 'tags')
+			{
+				if(strpos($post['tags'], $value) !== false)
+				{
+					$filtered_posts[$count] = $post;
+				}
+			}
+			if($filter == 'date')
+			{
+				$date = date();
+				$date = strtotime($date);
+				if((strtotime("-$value days") < $date && $date < strtotime("-$value days")))
+				{
+					$filtered_posts[$count] = $post;
+				}
+			}
+			$count++;
+		}
+		if(empty($filtered_posts))
+		{
+			$filtered_posts = array();
+		}
+		return $filtered_posts;
 	}
 
 	/** 
@@ -534,7 +575,11 @@ class Blog
 
 		if($query) 
 		{
-			if($PRETTYURLS == 1 && $Blog->getSettingsData("prettyurls") == 'Y')
+			if($query == 'rss')
+			{
+				$url = $SITEURL.'plugins/blog/rss.php';
+			}
+			elseif($PRETTYURLS == 1 && $Blog->getSettingsData("prettyurls") == 'Y')
 			{
 				$url .= $query . '/';
 			}
@@ -675,55 +720,81 @@ class Blog
 	* 
 	* @return bool
 	*/  
-	public function generateRSSFeed()
+	public function generateRSSFeed($save=true, $filtered=false)
 	{
 		global $SITEURL;
-		$RSSString                              = "";
-		$RSSString                              .= "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-		$RSSString                              .= "<rss version=\"2.0\"  xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
-		$RSSString                              .= "<channel>\n";
-		$RSSString                              .= "<title>".$this->getSettingsData("rsstitle")."</title>\n";
-		$RSSString                              .= "<link>".$SITEURL."rss.rss</link>\n";
-		$RSSString                              .= "<description>".$this->getSettingsData("rssdescription")."</description>\n";
-		$RSSString                              .= "<lastBuildDate>".date("D, j M Y H:i:s T")."</lastBuildDate>\n";
-		$RSSString                              .= "<language>".str_replace("_", "-",$this->getSettingsData("lang"))."</language>\n";
 
 		$post_array = glob(BLOGPOSTSFOLDER . "/*.xml");
+		if($save == true)
+		{
+			$locationOfFeed = $SITEURL."rss.rss";
+			$posts = $this->listPosts(true, true);
+		}
+		else
+		{
+			$locationOfFeed = $SITEURL."plugins/blog/rss.php";
+			if($filtered != false)
+			{
+				$posts = $this->filterPosts($filtered['filter'], $filtered['value']);
+			}
+			else
+			{
+				$posts = $this->listPosts(true, true);
+			}
+		}
+
+		$RSSString      = "";
+		$RSSString     .= "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+		$RSSString     .= "<rss version=\"2.0\"  xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
+		$RSSString     .= "<channel>\n";
+		$RSSString     .= "<title>".$this->getSettingsData("rsstitle")."</title>\n";
+		$RSSString     .= "<link>".$locationOfFeed."</link>\n";
+		$RSSString     .= "<description>".$this->getSettingsData("rssdescription")."</description>\n";
+		$RSSString     .= "<lastBuildDate>".date("D, j M Y H:i:s T")."</lastBuildDate>\n";
+		$RSSString     .= "<language>".str_replace("_", "-",$this->getSettingsData("lang"))."</language>\n";
+
 		$limit = $this->getSettingsData("rssfeedposts");
 		array_multisort(array_map('filemtime', $post_array), SORT_DESC, $post_array); 
 		$post_array = array_slice($post_array, 0, $limit);
 
-		foreach ($post_array as $filename) 
+		foreach ($posts as $post) 
 		{
-			$blog_post = simplexml_load_file($filename);
+			$blog_post = simplexml_load_file($post['filename']);
 			$RSSDate    = $blog_post->date;
 			$RSSTitle   = $blog_post->title;
 			$RSSBody 	= html_entity_decode(str_replace("&nbsp;", " ", substr(htmlspecialchars(strip_tags($blog_post->content)),0,200)));
-			$ID 		= str_replace("../data/posts/", "", $filename);
-			$ID                                     = str_replace(".xml", "", $ID);
+			$ID 		= $blog_post->slug;
 			$RSSString .= "<item>\n";
 			$RSSString .= "\t  <title>".$RSSTitle."</title>\n";
 			$RSSString .= "\t  <link>".$this->get_blog_url('post').$ID."</link>\n";
-			$RSSString .= "\t  <guid>".$this->get_blog_url('post').$ID."</guid>\n";
+			$RSSString .= "\t  <guid>".$ID."</guid>\n";
 			$RSSString .= "\t  <description>".$RSSBody."</description>\n";
+			$RSSString .= "\t  <category>".$blog_post->category."</category>\n";
 			$RSSString .= "</item>\n";
 		}
 
-		$RSSString  .= '<atom:link href="'.$SITEURL."rss.rss\" rel=\"self\" type=\"application/rss+xml\" />\n";
+		$RSSString  .= '<atom:link href="'.$locationOfFeed."\" rel=\"self\" type=\"application/rss+xml\" />\n";
 		$RSSString .= "</channel>\n";
 		$RSSString .= "</rss>\n";
 
-		if(!$fp = fopen(GSROOTPATH."rss.rss",'w'))
+		if($save==true)
 		{
-			echo "Could not open the rss.rss file";
-			exit();
+			if(!$fp = fopen(GSROOTPATH."rss.rss",'w'))
+			{
+				echo "Could not open the rss.rss file";
+				exit();
+			}
+			if(!fwrite($fp,$RSSString))
+			{
+				echo "Could not write to rss.rss file";
+				exit();
+			}
+			fclose($fp);
 		}
-		if(!fwrite($fp,$RSSString))
+		else
 		{
-			echo "Could not write to rss.rss file";
-			exit();
+			return $RSSString;
 		}
-		fclose($fp);
 	}
 
 	/** 
