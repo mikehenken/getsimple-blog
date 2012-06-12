@@ -32,6 +32,8 @@ add_action('pages-sidebar','createSideMenu',array($thisfile, i18n_r(BLOGFILE.'/P
 # add_filter('content', 'blog_display_posts');
 add_action('index-pretemplate', 'blog_display_posts');
 add_action('theme-header', 'shareThisToolHeader');
+add_action('theme-header', 'includeRssFeed');
+
 define('BLOGCATEGORYFILE', GSDATAOTHERPATH  . 'blog_categories.xml');
 define('BLOGRSSFILE', GSDATAOTHERPATH  . 'blog_rss.xml');
 define('BLOGPLUGINFOLDER', GSPLUGINPATH.'blog/');
@@ -1378,6 +1380,14 @@ function show_help_admin()
 		<a href="<?php echo $SITEURL."rss.rss"; ?>" target="_blank"><?php echo $SITEURL."rss.rss"; ?>
 	</p>
 	<?php
+}
+
+function includeRssFeed(){
+	global $SITEURL;
+	$locationOfFeed = $SITEURL."rss.rss";
+	$blog = new Blog;	
+	$blogTitle = htmlspecialchars($blog->getSettingsData("rsstitle"));
+	echo '<link href="'.$locationOfFeed.'" rel="alternate" type="application/rss+xml" title="'.$blogTitle.'">';
 }
 
 function addThisTool()
