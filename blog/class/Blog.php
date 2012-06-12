@@ -705,38 +705,38 @@ class Blog
 	public function generateRSSFeed()
 	{
 		global $SITEURL;
-		$RSSString                              = "";
-		$RSSString                              .= "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-		$RSSString                              .= "<rss version=\"2.0\"  xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
-		$RSSString                              .= "<channel>\n";
-		$RSSString                              .= "<title>".$this->getSettingsData("rsstitle")."</title>\n";
-		$RSSString                              .= "<link>".$SITEURL."rss.rss</link>\n";
-		$RSSString                              .= "<description>".$this->getSettingsData("rssdescription")."</description>\n";
-		$RSSString                              .= "<lastBuildDate>".date("D, j M Y H:i:s T")."</lastBuildDate>\n";
-		$RSSString                              .= "<language>".str_replace("_", "-",$this->getSettingsData("lang"))."</language>\n";
 
-		$post_array = glob(BLOGPOSTSFOLDER . "/*.xml");
-		$limit = "10";
+		$RSSString      = "";
+		$RSSString     .= "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+		$RSSString     .= "<rss version=\"2.0\"  xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
+		$RSSString     .= "<channel>\n";
+		$RSSString     .= "<title>".$this->getSettingsData("rsstitle")."</title>\n";
+		$RSSString     .= "<link>".$locationOfFeed."</link>\n";
+		$RSSString     .= "<description>".$this->getSettingsData("rssdescription")."</description>\n";
+		$RSSString     .= "<lastBuildDate>".date("D, j M Y H:i:s T")."</lastBuildDate>\n";
+		$RSSString     .= "<language>".str_replace("_", "-",$this->getSettingsData("lang"))."</language>\n";
+		$RSSString     .= '<atom:link href="'.$locationOfFeed."\" rel=\"self\" type=\"application/rss+xml\" />\n";
+
+		$limit = $this->getSettingsData("rssfeedposts");
 		array_multisort(array_map('filemtime', $post_array), SORT_DESC, $post_array); 
 		$post_array = array_slice($post_array, 0, $limit);
 
-		foreach ($post_array as $filename) 
+		foreach ($posts as $post) 
 		{
-			$blog_post = simplexml_load_file($filename);
+			$blog_post = simplexml_load_file($post['filename']);
 			$RSSDate    = $blog_post->date;
 			$RSSTitle   = $blog_post->title;
 			$RSSBody 	= html_entity_decode(str_replace("&nbsp;", " ", substr(htmlspecialchars(strip_tags($blog_post->content)),0,200)));
-			$ID 		= str_replace("../data/posts/", "", $filename);
-			$ID                                     = str_replace(".xml", "", $ID);
+			$ID 		= $blog_post->slug;
 			$RSSString .= "<item>\n";
 			$RSSString .= "\t  <title>".$RSSTitle."</title>\n";
 			$RSSString .= "\t  <link>".$this->get_blog_url('post').$ID."</link>\n";
 			$RSSString .= "\t  <guid>".$this->get_blog_url('post').$ID."</guid>\n";
-			$RSSString .= "\t  <description>".$RSSBody."</description>\n";
+			$RSSString .= "\t  <description>".htmlspecialchars($RSSBody)."</description>\n";
+			if(isset($blog_post->category) and !empty($blog_post->category) and $blog_post->category!='') $RSSString .= "\t  <category>".$blog_post->category."</category>\n";
 			$RSSString .= "</item>\n";
 		}
 
-		$RSSString  .= '<atom:link href="'.$SITEURL."rss.rss\" rel=\"self\" type=\"application/rss+xml\" />\n";
 		$RSSString .= "</channel>\n";
 		$RSSString .= "</rss>\n";
 
