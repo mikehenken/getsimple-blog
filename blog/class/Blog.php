@@ -724,25 +724,6 @@ class Blog
 	{
 		global $SITEURL;
 
-		$post_array = glob(BLOGPOSTSFOLDER . "/*.xml");
-		if($save == true)
-		{
-			$locationOfFeed = $SITEURL."rss.rss";
-			$posts = $this->listPosts(true, true);
-		}
-		else
-		{
-			$locationOfFeed = $SITEURL."plugins/blog/rss.php";
-			if($filtered != false)
-			{
-				$posts = $this->filterPosts($filtered['filter'], $filtered['value']);
-			}
-			else
-			{
-				$posts = $this->listPosts(true, true);
-			}
-		}
-
 		$RSSString      = "";
 		$RSSString     .= "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 		$RSSString     .= "<rss version=\"2.0\"  xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
@@ -752,6 +733,7 @@ class Blog
 		$RSSString     .= "<description>".$this->getSettingsData("rssdescription")."</description>\n";
 		$RSSString     .= "<lastBuildDate>".date("D, j M Y H:i:s T")."</lastBuildDate>\n";
 		$RSSString     .= "<language>".str_replace("_", "-",$this->getSettingsData("lang"))."</language>\n";
+		$RSSString     .= '<atom:link href="'.$locationOfFeed."\" rel=\"self\" type=\"application/rss+xml\" />\n";
 
 		$limit = $this->getSettingsData("rssfeedposts");
 		array_multisort(array_map('filemtime', $post_array), SORT_DESC, $post_array); 
@@ -767,13 +749,13 @@ class Blog
 			$RSSString .= "<item>\n";
 			$RSSString .= "\t  <title>".$RSSTitle."</title>\n";
 			$RSSString .= "\t  <link>".$this->get_blog_url('post').$ID."</link>\n";
-			$RSSString .= "\t  <guid>".$ID."</guid>\n";
-			$RSSString .= "\t  <description>".$RSSBody."</description>\n";
+			$RSSString .= "\t  <guid>".$this->get_blog_url('post').$ID."</guid>\n";
+			$RSSString .= "\t  <description>".htmlspecialchars($RSSBody)."</description>\n";
+			if(isset($blog_post->category) and !empty($blog_post->category) and $blog_post->category!='') $RSSString .= "\t  <category>".$blog_post->category."</category>\n";
 			$RSSString .= "\t  <category>".$blog_post->category."</category>\n";
 			$RSSString .= "</item>\n";
 		}
 
-		$RSSString  .= '<atom:link href="'.$locationOfFeed."\" rel=\"self\" type=\"application/rss+xml\" />\n";
 		$RSSString .= "</channel>\n";
 		$RSSString .= "</rss>\n";
 
