@@ -18,7 +18,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.1.6', 		
+	'1.2', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -32,6 +32,7 @@ add_action('index-pretemplate', 'blog_display_posts');
 add_action('theme-header', 'shareThisToolHeader');
 //Include Blog class
 require_once(BLOGPLUGINFOLDER.'class/Blog.php');
+require_once(BLOGPLUGINFOLDER.'class/customFields.php');
 
 /** 
 * Show admin plugin navigation bar
@@ -45,6 +46,14 @@ function showAdminNav()
 		img.rss_feed {
 			margin-left:14px;
 		}
+		.odd_meta {
+			float: left;
+			width: 48%;
+		}
+		.even_meta {
+			float: right;
+			width: 48%;
+		}
 	</style>
 	<div style="width:100%;margin:0 -15px -15px -10px;padding:0px;">
 		<h3  class="floated"><?php i18n(BLOGFILE.'/PLUGIN_TITLE'); ?></h3>
@@ -52,6 +61,7 @@ function showAdminNav()
 			<p>
 				<a href="load.php?id=blog&help" <?php echo (isset($_GET['help']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/HELP'); ?></a>
 				<a href="load.php?id=blog&settings" <?php echo (isset($_GET['settings']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/SETTINGS'); ?></a>
+				<a href="load.php?id=blog&custom_fields" <?php echo (isset($_GET['custom_fields']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CUSTOM_FIELDS'); ?></a>
 				<a href="load.php?id=blog&auto_importer" <?php echo (isset($_GET['auto_importer']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/RSS_FEEDS'); ?></a>
 				<a href="load.php?id=blog&categories" <?php echo (isset($_GET['categories']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CATEGORIES'); ?></a>
 				<a href="load.php?id=blog&create_post" <?php echo (isset($_GET['create_post']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CREATE_POST'); ?></a>
@@ -153,6 +163,19 @@ function blog_admin()
 	{
 		show_help_admin();
 	}
+	elseif(isset($_GET['custom_fields']))
+	{
+		$CustomFields = new customFields;
+		if(isset($_POST['save_custom_fields']))
+		{
+			$saveCustomFields = $CustomFields->saveCustomFields();
+			if($saveCustomFields)
+			{
+				echo '<div class="updated">'.i18n_r(BLOGFILE.'/EDIT_OK').'</div>';
+			}
+		}
+		show_custom_fields();
+	}
 	else
 	{
 		if(isset($_GET['save_post']))
@@ -229,6 +252,7 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
+		$blog_page = $_POST['blog_page'];
 		$blog_settings_array = array('blogurl' => $_POST['blog_url'],
 									 'lang' => $_POST['language'],
 									 'excerptlength' => $_POST['excerpt_length'],
@@ -259,7 +283,9 @@ function show_settings_admin()
 									 'nextpage' => $_POST['next_page'],
 									 'displaycss' => $_POST['display_css'],
 									 'csscode' => $_POST['css_code'],
-									 'rssfeedposts' => $_POST['rss_feed_num_posts']);
+									 'rssfeedposts' => $_POST['rss_feed_num_posts'],
+									 'customfields' => $_POST['custom_fields'],
+									 'blogpage' => $blog_page);
 		$Blog->saveSettings($blog_settings_array);
 	}
 	?>
@@ -384,6 +410,16 @@ function show_settings_admin()
 				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
 				<span style="margin-left: 30px;">&nbsp;</span>
 				<input name="display_date" type="radio" value="N" <?php if ($Blog->getSettingsData("displaydate") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="custom_fields"><?php i18n(BLOGFILE.'/USE_CUSTOM_BLOG_PAGE'); ?>:</label>
+				<input name="custom_fields" type="radio" value="Y" <?php if ($Blog->getSettingsData("customfields") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="custom_fields" type="radio" value="N" <?php if ($Blog->getSettingsData("customfields") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
 				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
 			</p>
 		</div>
@@ -535,6 +571,20 @@ function show_settings_admin()
 			</p>
 		</div>
 		<div class="clear"></div>
+		<h3><?php i18n(BLOGFILE.'/BLOG_PAGE'); ?></h3>
+		<div class="leftec" style="width:100%">
+			<p>
+				<label for="ad_data"><?php i18n(BLOGFILE.'/BLOG_PAGE'); ?>: <span style="color:red;font-size:15px;"><?php i18n(BLOGFILE.'/BLOG_PAGE_WARNING'); ?></span></label>
+				<label for="display_css"><a id="blog_page_help" href="#blog_page_help_data"><?php i18n(BLOGFILE.'/DISPLAY_BLOG_PAGE_HELP'); ?></a></label>
+				<div style="display:none;">
+					<div id="blog_page_help_data">
+						<?php blog_page_help_html(); ?>
+					</div>
+				</div>
+				<textarea name="blog_page" id="blog_page" style=""><?php echo $Blog->getSettingsData("blogpage"); ?></textarea>
+			</p>
+		</div>
+		<div class="clear"></div>
 		<h3><?php i18n(BLOGFILE.'/CSS_SETTINGS'); ?></h3>
 		<div class="leftsec">
 			<p>
@@ -592,7 +642,23 @@ function show_settings_admin()
 					$("a#css_help").fancybox({
 						'hideOnContentClick': true
 					});
+					$("a#blog_page_help").fancybox({
+						'hideOnContentClick': true
+					});
 				</script>
+				<script>
+			      var editor = CodeMirror.fromTextArea(document.getElementById("blog_page"), {
+			        lineNumbers: true,
+			        matchBrackets: true,
+			        mode: "application/x-httpd-php",
+			        indentUnit: 4,
+			        indentWithTabs: true,
+			        enterMode: "keep",
+			        tabMode: "shift",
+			        lineWrapping: "true"
+			      });
+			    </script>
+
 				<input name="display_css" type="radio" value="Y" <?php if ($Blog->getSettingsData("displaycss") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
 				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
 				<span style="margin-left: 30px;">&nbsp;</span>
@@ -720,38 +786,8 @@ function editPost($post_id=null)
 	<form class="largeform" action="load.php?id=blog&save_post" method="post" accept-charset="utf-8">
 	<?php if($post_id != null) { echo "<p><input name=\"post-current_slug\" type=\"hidden\" value=\"$blog_data->slug\" /></p>"; } ?>
 	<div id="metadata_window" style="display:none;text-align:left;">
+		<?php displayCustomFields(); ?>
 		<div class="leftopt">
-			<p>
-				<label for="post-slug"><?php i18n(BLOGFILE.'/POST_SLUG'); ?>:</label>
-				<input class="text short" id="post-slug" name="post-slug" type="text" value="<?php echo $blog_data->slug; ?>" />
-			</p>
-			<p>
-				<label for="post-date"><?php i18n(BLOGFILE.'/POST_DATE'); ?>:</label>
-				<input class="text short" id="post-date" name="post-date" type="text" value="<?php echo $blog_data->date; ?>" style="width: 60%;" />
-			</p>
-		</div>
-		<div class="rightopt">
-			<p>
-				<label for="post-tags"><?php i18n(BLOGFILE.'/POST_TAGS'); ?>:</label>
-				<input class="text short" id="post-tags" name="post-tags" type="text" value="<?php echo $blog_data->tags; ?>" />
-			</p>
-			<p class="inline" id="post-private-wrap">
-				<br />
-				<label for="post-private"><?php i18n(BLOGFILE.'/POST_PRIVATE'); ?>:</label>
-				&nbsp;&nbsp;
-				<input type="checkbox" id="post-private" name="post-private" <?php echo $blog_data->private; ?> />
-			</p>
-		</div>
-		<div class="clear"></div>
-		<div class="leftopt">     
-			<p>
-			<label for="post-category"><?php i18n(BLOGFILE.'/POST_CATEGORY'); ?>:</label>		
-			<select class="text" name="post-category">	
-				<?php category_dropdown($blog_data->category); ?>
-			</select>
-			</p>
-		</div>
-		<div class="rightopt">
 				<label>Upload Thumbnail</label>
 			<div class="uploader_container"> 
 			    <div id="file-uploader-thumbnail"> 
@@ -776,13 +812,8 @@ function editPost($post_id=null)
 		</div>
 		<div class="clear"></div>
 		</div>
-		<p>
-			<input class="text title" name="post-title" id="post-title" type="text" value="<?php echo $blog_data->title; ?>" />
-		</p>
-		<p>
-			<textarea name="post-content"><?php echo $blog_data->content; ?></textarea>
-		</p>
-		<p>
+
+		<?php displayCustomFields('main'); ?>
 			<input name="post" type="submit" class="submit" value="<?php i18n(BLOGFILE.'/SAVE_POST'); ?>" />
 			&nbsp;&nbsp;<?php i18n(BLOGFILE.'/OR'); ?>&nbsp;&nbsp;
 			<a href="load.php?id=news_manager&cancel" class="cancel"><?php i18n(BLOGFILE.'/CANCEL'); ?></a>
@@ -1055,90 +1086,98 @@ function show_blog_post($slug, $excerpt=false)
 	$post = getXML($slug);
 	$url = $Blog->get_blog_url('post').$post->slug;
 	$date = $Blog->get_locale_date(strtotime($post->date), '%b %e, %Y');
-	if(isset($_GET['post']) && $Blog->getSettingsData("postadtop") == 'Y')
+	if($Blog->getSettingsData("customfields") != 'Y')
 	{
-		?>
-		<div class="blog_all_posts_ad">
-			<?php echo $Blog->getSettingsData("addata"); ?>
-		</div>
-		<?php
-	}
-	if(isset($_GET['post']) && $Blog->getSettingsData("disquscount") == 'Y') { 
-	?>
-		<a href="<?php echo $url; ?>/#disqus_thread" data-disqus-identifier="<?php echo $_GET['post']; ?>" style="float:right"></a>
-	<?php } ?>
-	<div class="blog_post_container">
-		<h3 class="blog_post_title"><a href="<?php echo $url; ?>" class="blog_post_link"><?php echo $post->title; ?></a></h3>
-		<?php if($Blog->getSettingsData("displaydate") == 'Y') {  ?>
-			<p class="blog_post_date">
-				<?php echo $date; ?>
-			</p>
-		<?php } ?>
-		<p class="blog_post_content">
-			<?php
-			if(!isset($_GET['post']) && $Blog->getSettingsData("postthumbnail") == 'Y' && !empty($post->thumbnail)) 
-			{ 
-				echo '<img src="'.$SITEURL.'data/uploads/'.$post->thumbnail.'" style="" class="blog_post_thumbnail" />';
-			}
-			if($excerpt == false || $excerpt == true && $Blog->getSettingsData("postformat") == "Y")
-			{
-				echo html_entity_decode($post->content);
-			}
-			else
-			{
-				if($excerpt == true && $Blog->getSettingsData("postformat") == "N")
-				{
-					if($Blog->getSettingsData("excerptlength") == '')
-					{
-						$excerpt_length = 250;
-					}
-					else
-					{
-						$excerpt_length = $Blog->getSettingsData("excerptlength");
-					}
-					echo $Blog->create_excerpt(html_entity_decode($post->content), 0, $excerpt_length);
-				}
-			}
-			if(isset($_GET['post']))
-			{
-				echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; '.i18n_r(BLOGFILE.'/GO_BACK').'</a></p>';
-			}
-			?>
-		</p>
-	</div>
-	<?php
-	if(!empty($post->tags) && $Blog->getSettingsData("displaytags") != 'N')
-	{
-		$tag_url = $Blog->get_blog_url('tag');
-		$tags = explode(",", $post->tags);
-		?>
-		<p class="blog_tags"><b><?php i18n(BLOGFILE.'/TAGS'); ?> :</b> 
-		<?php
-		foreach($tags as $tag)
+		if(isset($_GET['post']) && $Blog->getSettingsData("postadtop") == 'Y')
 		{
-			echo '<a href="'.$tag_url.$tag.'">'.$tag.'</a> ';
+			?>
+			<div class="blog_all_posts_ad">
+				<?php echo $Blog->getSettingsData("addata"); ?>
+			</div>
+			<?php
 		}
-		echo  '</p>';
-	}
-	if(isset($_GET['post']) && $Blog->getSettingsData("postadbottom") == 'Y')
-	{
+		if(isset($_GET['post']) && $Blog->getSettingsData("disquscount") == 'Y') { 
 		?>
-		<div class="blog_all_posts_ad">
-			<?php echo $Blog->getSettingsData("addata"); ?>
+			<a href="<?php echo $url; ?>/#disqus_thread" data-disqus-identifier="<?php echo $_GET['post']; ?>" style="float:right"></a>
+		<?php } ?>
+		<div class="blog_post_container">
+			<h3 class="blog_post_title"><a href="<?php echo $url; ?>" class="blog_post_link"><?php echo $post->title; ?></a></h3>
+			<?php if($Blog->getSettingsData("displaydate") == 'Y') {  ?>
+				<p class="blog_post_date">
+					<?php echo $date; ?>
+				</p>
+			<?php } ?>
+			<p class="blog_post_content">
+				<?php
+				if(!isset($_GET['post']) && $Blog->getSettingsData("postthumbnail") == 'Y' && !empty($post->thumbnail)) 
+				{ 
+					echo '<img src="'.$SITEURL.'data/uploads/'.$post->thumbnail.'" style="" class="blog_post_thumbnail" />';
+				}
+				if($excerpt == false || $excerpt == true && $Blog->getSettingsData("postformat") == "Y")
+				{
+					echo html_entity_decode($post->content);
+				}
+				else
+				{
+					if($excerpt == true && $Blog->getSettingsData("postformat") == "N")
+					{
+						if($Blog->getSettingsData("excerptlength") == '')
+						{
+							$excerpt_length = 250;
+						}
+						else
+						{
+							$excerpt_length = $Blog->getSettingsData("excerptlength");
+						}
+						echo $Blog->create_excerpt(html_entity_decode($post->content), 0, $excerpt_length);
+					}
+				}
+				if(isset($_GET['post']))
+				{
+					echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; '.i18n_r(BLOGFILE.'/GO_BACK').'</a></p>';
+				}
+				?>
+			</p>
 		</div>
 		<?php
+		if(!empty($post->tags) && $Blog->getSettingsData("displaytags") != 'N')
+		{
+			$tag_url = $Blog->get_blog_url('tag');
+			$tags = explode(",", $post->tags);
+			?>
+			<p class="blog_tags"><b><?php i18n(BLOGFILE.'/TAGS'); ?> :</b> 
+			<?php
+			foreach($tags as $tag)
+			{
+				echo '<a href="'.$tag_url.$tag.'">'.$tag.'</a> ';
+			}
+			echo  '</p>';
+		}
+		if(isset($_GET['post']) && $Blog->getSettingsData("postadbottom") == 'Y')
+		{
+			?>
+			<div class="blog_all_posts_ad">
+				<?php echo $Blog->getSettingsData("addata"); ?>
+			</div>
+			<?php
+		}
+		if(isset($_GET['post']) && $Blog->getSettingsData("addthis") == 'Y')
+		{
+			addThisTool();
+		}
+		if(isset($_GET['post']) && $Blog->getSettingsData("sharethis") == 'Y')
+		{
+			shareThisTool();
+		}
+		if(isset($_GET['post']) && $Blog->getSettingsData("comments") == 'Y' && isset($_GET['post']))
+		{
+			disqusTool();
+		}
 	}
-	if(isset($_GET['post']) && $Blog->getSettingsData("addthis") == 'Y')
-	{
-		addThisTool();
-	}
-	if(isset($_GET['post']) && $Blog->getSettingsData("sharethis") == 'Y')
-	{
-		shareThisTool();
-	}
-	if(isset($_GET['post']) && $Blog->getSettingsData("comments") == 'Y' && isset($_GET['post']))
-	{
-		disqusTool();
+	else
+	{	
+		$blog_code = (string) $Blog->getSettingsData("blogpage");
+		eval(' ?>'.$blog_code.'<?php ');
 	}
 }
 
@@ -1247,13 +1286,18 @@ function show_blog_archive($archive)
 
 /** 
 * Show recent posts list
-* 
-* @return void
-*/  
-function show_blog_recent_posts()
+*
+* @param $excerpt bool Choose true to display excerpts of post below post title. Defaults to false (no excerpt)
+* @param $excerpt_length int Choose length of excerpt. If no value is provided, it will default to the length defined on the blog settings page
+* @param $thumbnail int If true a thumbnail will be displayed for each post
+* @param $read_more string if not null, a "Read More" link will be placed at the end of the excerpt. Pass the text you would like to be displayed inside the link
+* @return string or void
+*/
+function show_blog_recent_posts($excerpt=false, $excerpt_length=null, $thumbnail=null, $read_more=null)
 {
 	$Blog = new Blog;
 	$posts = $Blog->listPosts(true, true);
+	global $SITEURL;
 	if (!empty($posts)) 
 	{
 		echo '<ul>';
@@ -1263,7 +1307,31 @@ function show_blog_recent_posts()
 			$data = getXML($file['filename']);
 			$url = $Blog->get_blog_url('post') . $data->slug;
 			$title = strip_tags(strip_decode($data->title));
-			echo "<li><a href=\"$url\">$title</a></li>";
+
+			if($excerpt != false)
+			{
+				if($excerpt_length == null)
+				{
+					$excerpt_length = $Blog->getSettingsData("excerptlength");
+				}
+				$excerpt = $Blog->create_excerpt(html_entity_decode($data->content), 0, $excerpt_length);
+				if($thumbnail != null)
+				{
+					if(!empty($data->thumbnail))
+					{
+						$excerpt = '<img src="'.$SITEURL.'data/uploads/'.$data->thumbnail.'" class="blog_recent_posts_thumbnail" />'.$excerpt;
+					}
+				}
+				if($read_more != null)
+				{
+					$excerpt = $excerpt.'<br/><a href="'.$url.'" class="recent_posts_read_more">'.$read_more.'</a>';
+				}
+				echo '<li><a href="'.$url.'">'.$title.'</a><p class="blog_recent_posts_excerpt">'.$excerpt.'</p></li>';
+			}
+			else
+			{
+				echo "<li><a href=\"$url\">$title</a></li>";
+			}
 		}
 		echo '</ul>';
 	}
@@ -1536,6 +1604,7 @@ function show_help_admin()
 		<a href="<?php echo $SITEURL."plugins/blog/rss.php"; ?>" target="_blank"><?php echo $SITEURL."plugins/blog/rss.php"; ?></a>
 	</p>
 	<?php
+	blog_page_help_html();
 }
 
 function addThisTool()
@@ -1627,3 +1696,71 @@ function disqusTool()
 	<?php
 	}
 }
+
+function blog_page_help_html()
+{
+	?>
+	<h3><?php i18n(BLOGFILE.'/BLOG_PAGE_DESC_TITLE'); ?></h3>
+	<p>
+		<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_DESC_LINE_1'); ?></strong> <br/>
+		<?php i18n(BLOGFILE.'/BLOG_PAGE_DESC_LINE_2'); ?><br/>
+		<?php i18n(BLOGFILE.'/BLOG_PAGE_DESC_LINE_3'); ?>: <br/>
+		<?php highlight_string('<h1 class="title"><?php echo $post->title; ?></h1>'); ?><br/>
+		<?php highlight_string('<p><img src="<?php echo $post->thumbnail; ?>" />'); ?><br/>
+		<?php highlight_string('<?php echo $post->content; ?></p>'); ?><br/><br/>
+	</p>
+
+	<h3><?php i18n(BLOGFILE.'/BLOG_PAGE_AVAILABLE_FUNCTIONS'); ?></h3>
+	<ul>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_FORMAT_DATE_LABEL'); ?>: </strong><?php highlight_string('<?php echo formatPostDate($post->date); ?>'); ?><br/>
+			<?php i18n(BLOGFILE.'/BLOG_PAGE_FORMAT_DATA_DESC'); ?><br/><br/>
+		</li>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_GET_URL_TO_AREAS'); ?>: <strong><?php highlight_string('<?php $Blog->get_blog_url(\'post\'); ?>'); ?><br/>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_URL_EX_LABEL'); ?>: </strong> <?php highlight_string('<?php echo $Blog->get_blog_url(\'post\').$post->slug; ?>'); ?><br/>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_AVAILABLE_AREAS'); ?></strong>
+			<ul style="margin-left:20px;list-style:disc">
+				<li><?php i18n(BLOGFILE.'/BLOG_PAGE_POST'); ?></li>
+				<li><?php i18n(BLOGFILE.'/BLOG_PAGE_TAG'); ?></li>
+				<li><?php i18n(BLOGFILE.'/BLOG_PAGE_PAGE'); ?></li>
+				<li><?php i18n(BLOGFILE.'/BLOG_PAGE_ARCHIVE'); ?></li>
+				<li><?php i18n(BLOGFILE.'/BLOG_PAGE_CATEGORY'); ?></li>
+			</ul><br/>
+		</li>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_ADD_THIS'); ?><strong>
+			<?php highlight_string('<?php addThisTool(); ?>'); ?>
+			<br/><br/>
+		</li>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_SHARE_THIS'); ?>: <strong>
+			<?php highlight_string('<?php shareThisTool(); ?>'); ?>
+			<br/><br/>
+		</li>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_DISQUS_COMMENTS'); ?>: <strong>
+			<?php highlight_string('<?php disqusTool(); ?>'); ?>
+			<br/><br/>
+		</li>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_CREATE_EXCERPT'); ?>: <strong>
+			<?php highlight_string('<?php echo $Blog->create_excerpt(html_entity_decode($post->content), 0, $excerpt_length); ?>'); ?><br/>
+			<?php i18n(BLOGFILE.'/BLOG_PAGE_CREATE_EXCERPT_DESC'); ?>
+			<br/><br/>
+		</li>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_DECODE_CONTENT'); ?>: <strong>
+			<?php highlight_string('<?php echo html_entity_decode($post->content); ?>'); ?>
+			<br/><br/>
+		</li>
+		<li>
+			<strong><?php i18n(BLOGFILE.'/BLOG_PAGE_ADD_DATA_LABEL'); ?>: <strong>
+			<?php highlight_string('<?php echo $Blog->getSettingsData("addata"); ?>'); ?>
+			<br/><br/>
+		</li>
+	</ul>
+	<?php
+}
+
+require_once("blog/inc/manage_custom_fields.php");

@@ -100,6 +100,14 @@ class Blog
 				echo '<div class="error"><strong>'.i18n_r(BLOGFILE.'/BLOG_SETTINGS').' '. i18n_r(BLOGFILE.'/DATA_FILE_ERROR').'</strong></div>';
 			}
 		}
+		if(!file_exists(BLOGCUSTOMFIELDS))
+		{
+			$custom_fields_file = BLOGPLUGINFOLDER.'inc/reserved_blog_custom_fields.xml';
+      		if(!copy($custom_fields_file, BLOGCUSTOMFIELDS))
+      		{
+      			echo '<div class="error"><strong>Catastrophic ERROR!!!</strong> - You are going to need to copy the contents of the below file, save it as a new document namned "blog_custom_fields.xml" and then move it to the "'.GSDATAOTHERPATH.'" folder!<br/><strong>XML File To Copy:</strong> '.BLOGCUSTOMFIELDS.'</div>';
+      		}
+		}
 	}
 
 	/** 
@@ -538,17 +546,14 @@ class Blog
 	*/  
 	public function getXMLnodes($array=false)
 	{
-		$blog_data = array('title' => '',
-							'slug' => '',
-							'date' => '',
-							'private' => '',
-							'tags' => '',
-							'category' => '',
-							'content' => '',
-							'excerpt' => '',
-							'thumbnail' => '',
-							'current_slug' => '',
-							);
+		$cfData = getXML(BLOGCUSTOMFIELDS);
+		$blog_data = array('current_slug' => '', 'thumbnail' => '');
+		foreach($cfData->item as $custom_field)
+		{
+			$value = (string) $custom_field->desc;
+			$blog_data[$value] = '';
+		}
+
 		if($array == false)
 		{
 			return $blog_data = (object) $blog_data;
@@ -557,7 +562,7 @@ class Blog
 		{
 			return $blog_data;
 		}
-	}
+  	}
 
 	/** 
 	* Generates link to blog or blog area
@@ -845,5 +850,25 @@ class Blog
 				return -1; 
 			} 
 		} 
+	}
+
+	public function regexReplace($content) 
+	{
+		$the_callback = preg_match('/{\$\s*([a-zA-Z0-9_]+)(\s+[^\$]+)?\s*\$}/', $content, $matches);
+		if(isset($matches[0]))
+		{
+			$display_post_data = str_replace('{$ ', '', $matches[0]);
+			$display_post_data = str_replace(' $}', '', $display_post_data);
+			echo str_replace($matches[0],$display_post_data,$content);
+		}
+		else
+		{
+			return $content;
+		}
+	}
+
+	public function getIndPostData($data, $node)
+	{
+
 	}
 }
