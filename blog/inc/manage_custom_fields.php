@@ -276,10 +276,17 @@ function displayCustomFields($area='options')
 					echo '<p class="'.$meta_class.'">';
 					if($label != '') { echo '<label>'.$label.':</label>'; }
 					echo '<select id="post-'.$key.'" name="post-'.$key.'" class="text shorts">';
-					foreach ($the['options'] as $option) 
+					if($key == 'category')
 					{
-						$attrs = $value == $option ? ' selected="selected"' : '';
-						echo '<option value="'.$option.'" '.$attrs.'>'.$option.'</option>';
+						category_dropdown();
+					}
+					else
+					{
+						foreach ($the['options'] as $option) 
+						{
+							$attrs = $value == $option ? ' selected="selected"' : '';
+							echo '<option value="'.$option.'" '.$attrs.'>'.$option.'</option>';
+						}
 					}
 					echo '</select></p>';
 					$col++;

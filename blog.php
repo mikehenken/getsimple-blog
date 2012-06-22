@@ -18,7 +18,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.2', 		
+	'1.2.1', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
