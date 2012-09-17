@@ -1,5 +1,6 @@
 <?php
 $thisfile = basename(__FILE__, ".php");
+define('BLOGFILE', $thisfile);
 require_once("blog/inc/common.php");
 
 # add in this plugin's language file
@@ -18,60 +19,27 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.2.2', 		
+	'1.3', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
 	'pages',
 	'blog_Admin'  
 );
-
 add_action('pages-sidebar','createSideMenu',array($thisfile, i18n_r(BLOGFILE.'/PLUGIN_SIDE')));
-# add_filter('content', 'blog_display_posts');
-add_action('index-pretemplate', 'blog_display_posts');
-add_action('theme-header', 'shareThisToolHeader');
-//Include Blog class
-require_once(BLOGPLUGINFOLDER.'class/Blog.php');
-require_once(BLOGPLUGINFOLDER.'class/customFields.php');
 
-/** 
-* Show admin plugin navigation bar
-* 
-* @return void echos
-*/  
-function showAdminNav()
+function getBlogUserPermissions()
 {
-	?>
-	<style>
-		img.rss_feed {
-			margin-left:14px;
-		}
-		.odd_meta {
-			float: left;
-			width: 48%;
-		}
-		.even_meta {
-			float: right;
-			width: 48%;
-		}
-	</style>
-	<div style="width:100%;margin:0 -15px -15px -10px;padding:0px;">
-		<h3  class="floated"><?php i18n(BLOGFILE.'/PLUGIN_TITLE'); ?></h3>
-		<div class="edit-nav clearfix">
-			<p>
-				<a href="load.php?id=blog&help" <?php echo (isset($_GET['help']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/HELP'); ?></a>
-				<a href="load.php?id=blog&settings" <?php echo (isset($_GET['settings']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/SETTINGS'); ?></a>
-				<a href="load.php?id=blog&custom_fields" <?php echo (isset($_GET['custom_fields']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CUSTOM_FIELDS'); ?></a>
-				<a href="load.php?id=blog&auto_importer" <?php echo (isset($_GET['auto_importer']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/RSS_FEEDS'); ?></a>
-				<a href="load.php?id=blog&categories" <?php echo (isset($_GET['categories']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CATEGORIES'); ?></a>
-				<a href="load.php?id=blog&create_post" <?php echo (isset($_GET['create_post']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/CREATE_POST'); ?></a>
-				<a href="load.php?id=blog&manage" <?php echo (isset($_GET['manage']) ? 'class="current"' : false); ?>><?php i18n(BLOGFILE.'/MANAGE_POSTS'); ?></a>
-			</p>
-		</div>
-	</div>
-	</div>
-	<div class="main" style="margin-top:-10px;">
-	<?php
+	global $blogUserPermissions;
+	$current_user = get_cookie('GS_ADMIN_USERNAME');
+	$blogUserPermissions['blogsettings'] = (check_user_permission($current_user, 'blogsettings') == true) ? true : false;
+	$blogUserPermissions['blogeditpost'] = (check_user_permission($current_user, 'blogeditpost') == true) ? true : false;
+	$blogUserPermissions['blogcreatepost'] = (check_user_permission($current_user, 'blogcreatepost') == true) ? true : false;
+	$blogUserPermissions['blogcategories'] = (check_user_permission($current_user, 'blogcategories') == true) ? true : false;
+	$blogUserPermissions['blogrssimporter'] = (check_user_permission($current_user, 'blogrssimporter') == true) ? true : false;
+	$blogUserPermissions['bloghelp'] = (check_user_permission($current_user, 'bloghelp') == true) ? true : false;
+	$blogUserPermissions['blogcustomfields'] = (check_user_permission($current_user, 'blogcustomfields') == true) ? true : false;
+	$blogUserPermissions['blogdeletepost'] = (check_user_permission($current_user, 'blogdeletepost') == true) ? true : false;
 }
 
 /** 
@@ -82,17 +50,19 @@ function showAdminNav()
 function blog_admin()
 {
 	$Blog = new Blog;
+	getBlogUserPermissions();
+	global $blogUserPermissions;
 	showAdminNav();
 
-	if(isset($_GET['edit_post']))
+	if(isset($_GET['edit_post']) && $blogUserPermissions['blogeditpost'] == true)
 	{
 		editPost($_GET['edit_post']);
 	}
-	elseif(isset($_GET['create_post']))
+	elseif(isset($_GET['create_post']) && $blogUserPermissions['blogcreatepost'] == true)
 	{
 		editPost();
 	}
-	elseif(isset($_GET['categories']))
+	elseif(isset($_GET['categories']) && $blogUserPermissions['blogcategories'] == true)
 	{
 		if(isset($_GET['edit_category']))
 		{
@@ -116,7 +86,7 @@ function blog_admin()
 		}
 		edit_categories();
 	}
-	elseif(isset($_GET['auto_importer']))
+	elseif(isset($_GET['auto_importer']) && $blogUserPermissions['blogrssimporter'] == true)
 	{
 		if(isset($_POST['post-rss']))
 		{
@@ -155,15 +125,15 @@ function blog_admin()
 		}
 		edit_rss();
 	}
-	elseif(isset($_GET['settings']))
+	elseif(isset($_GET['settings']) && $blogUserPermissions['blogsettings'] == true)
 	{
 		show_settings_admin();
 	}
-	elseif(isset($_GET['help']))
+	elseif(isset($_GET['help']) && $blogUserPermissions['bloghelp'] == true)
 	{
 		show_help_admin();
 	}
-	elseif(isset($_GET['custom_fields']))
+	elseif(isset($_GET['custom_fields']) && $blogUserPermissions['blogcustomfields'] == true)
 	{
 		$CustomFields = new customFields;
 		if(isset($_POST['save_custom_fields']))
@@ -182,7 +152,7 @@ function blog_admin()
 		{
 			savePost();
 		}
-		elseif(isset($_GET['delete_post']))
+		elseif(isset($_GET['delete_post']) && $blogUserPermissions['blogdeletepost'] == true)
 		{
 			$post_id = urldecode($_GET['delete_post']);
 			$delete_post = $Blog->deletePost($post_id);
@@ -285,7 +255,10 @@ function show_settings_admin()
 									 'csscode' => $_POST['css_code'],
 									 'rssfeedposts' => $_POST['rss_feed_num_posts'],
 									 'customfields' => $_POST['custom_fields'],
-									 'blogpage' => $blog_page);
+									 'blogpage' => $blog_page,
+									 'displayreadmore' => $_POST['display_read_more'],
+									 'readmore' => $_POST['read_more_text'],
+									 'archivepostcount' => $_POST['display_archives_post_count']);
 		$Blog->saveSettings($blog_settings_array);
 	}
 	?>
@@ -426,6 +399,23 @@ function show_settings_admin()
 		<div class="clear"></div>
 		<div class="leftsec">
 			<p>
+				<label for="display_read_more"><?php i18n(BLOGFILE.'/DISPLAY_READ_MORE_LINK'); ?>:</label>
+				<input name="display_read_more" type="radio" value="Y" <?php if ($Blog->getSettingsData("displayreadmore") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="display_read_more" type="radio" value="N" <?php if ($Blog->getSettingsData("displayreadmore") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
+			</p>
+		</div>
+		<div class="rightsec">
+			<p>
+				<label for="read_more_text"><?php i18n(BLOGFILE.'/READ_MORE_LINK_TEXT'); ?>:</label>
+				<input class="text" type="text" name="read_more_text" value="<?php echo $Blog->getSettingsData("readmore"); ?>" />
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
 				<label for="previous_page"><?php i18n(BLOGFILE.'/PREVIOUS_PAGE_TEXT'); ?>:</label>
 				<input class="text" type="text" name="previous_page" value="<?php echo $Blog->getSettingsData("previouspage"); ?>" />
 			</p>
@@ -434,6 +424,17 @@ function show_settings_admin()
 			<p>
 				<label for="next_page"><?php i18n(BLOGFILE.'/NEXT_PAGE_TEXT'); ?>:</label>
 				<input class="text" type="text" name="next_page" value="<?php echo $Blog->getSettingsData("nextpage"); ?>" />
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="display_archives_post_count"><?php i18n(BLOGFILE.'/DISPLAY_POST_COUNT_ARCHIVES'); ?>:</label>
+				<input name="display_archives_post_count" type="radio" value="Y" <?php if ($Blog->getSettingsData("archivepostcount") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="display_archives_post_count" type="radio" value="N" <?php if ($Blog->getSettingsData("archivepostcount") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
 			</p>
 		</div>
 		<div class="clear"></div>
@@ -752,8 +753,8 @@ function editPost($post_id=null)
 		$blog_data = $Blog->getXMLnodes();
 	}
 	?>
-	<link href="../plugins/blog/uploader/client/fileuploader.css" rel="stylesheet" type="text/css">
-	<script src="../plugins/blog/uploader/client/fileuploader.js" type="text/javascript"></script>
+	<link href="../plugins/blog/inc/uploader/client/fileuploader.css" rel="stylesheet" type="text/css">
+	<script src="../plugins/blog/inc/uploader/client/fileuploader.js" type="text/javascript"></script>
 	<h3 class="floated">
 	  <?php
 	  if ($post_id == null)
@@ -799,13 +800,12 @@ function editPost($post_id=null)
 			   		 var uploader = new qq.FileUploader({
 				        element: document.getElementById('file-uploader-thumbnail'),
 				        // path to server-side upload script
-				        action: '../plugins/blog/uploader/server/php.php',
+				        action: '../plugins/blog/inc/uploader/server/php.php',
 			        	onComplete: function(id, fileName, responseJSON){
 				        	$('#post-thumbnail').attr('value', responseJSON.newFilename);
 				    	}
 
 			    }, '<?php i18n(BLOGFILE.'/POST_THUMBNAIL_LABEL'); ?>');
-			        window.onload = createUploader;
 			    </script>
 			</div>
 			<input type="text" id="post-thumbnail" name="post-thumbnail" value="<?php echo $blog_data->thumbnail; ?>" style="width:130px;float:right;margin-top:12px !important;" />
@@ -983,30 +983,40 @@ function savePost()
 {
 	$Blog = new Blog;
 	$xmlNodes = $Blog->getXMLnodes(true);
-	foreach($xmlNodes as $key => $value)
+	if(isset($_POST['post-title']))
 	{
-		if(!isset($_POST["post-".$key]))
+		foreach($xmlNodes as $key => $value)
 		{
-			$post_value = '';
+			if(!isset($_POST["post-".$key]))
+			{
+				$post_value = '';
+			}
+			else
+			{
+				$post_value = $_POST["post-".$key];
+			}
+			$post_data[$key] = $post_value;
+		}
+		$savePost = $Blog->savePost($post_data);
+		$generateRSS = $Blog->generateRSSFeed();
+		if($savePost != false)
+		{
+			echo '<div class="updated">';
+			i18n(BLOGFILE.'/POST_ADDED');
+			echo '</div>';
 		}
 		else
 		{
-			$post_value = $_POST["post-".$key];
+			echo '<div class="error">';
+			i18n(BLOGFILE.'/POST_ERROR');
+			echo '</div>';
 		}
-		$post_data[$key] = $post_value;
-	}
-	$savePost = $Blog->savePost($post_data);
-	$generateRSS = $Blog->generateRSSFeed();
-	if($savePost != false)
-	{
-		echo '<div class="updated">';
-		i18n(BLOGFILE.'/POST_ADDED');
-		echo '</div>';
 	}
 	else
 	{
 		echo '<div class="error">';
-		i18n(BLOGFILE.'/POST_ERROR');
+		i18n(BLOGFILE.'/BLOG_CREATE_EDIT_NO_TITLE');
+		echo ' <a href="javascript:history.go(-1)">'.i18n_r(BLOGFILE.'/BLOG_RETURN_TO_PREVIOUS_PAGE').'</a>';
 		echo '</div>';
 	}
 }
@@ -1018,19 +1028,20 @@ function savePost()
 */  
 function blog_display_posts() 
 {
-	GLOBAL $content;
+	GLOBAL $content,$blogSettings;
 	
 	$Blog = new Blog;
 	$slug = base64_encode(return_page_slug());
-	$blog_slug = base64_encode($Blog->getSettingsData("blogurl"));
+	$blogSettings = $Blog->getSettingsData();
+	$blog_slug = base64_encode($blogSettings["blogurl"]);
 	if($slug == $blog_slug)
 	{
 		$content = '';
 		ob_start();
-		if($Blog->getSettingsData("displaycss") == 'Y')
+		if($blogSettings["displaycss"] == 'Y')
 		{
 			echo "<style>\n";
-			echo $Blog->getSettingsData("csscode");
+			echo $blogSettings["csscode"];
 			echo "\n</style>";
 		}
 		if(isset($_GET['post']))
@@ -1082,65 +1093,68 @@ function blog_display_posts()
 function show_blog_post($slug, $excerpt=false)
 {
 	$Blog = new Blog;
-	global $SITEURL;
+	global $SITEURL,$blogSettings;
 	$post = getXML($slug);
 	$url = $Blog->get_blog_url('post').$post->slug;
 	$date = $Blog->get_locale_date(strtotime($post->date), '%b %e, %Y');
-	if($Blog->getSettingsData("customfields") != 'Y')
+	if($blogSettings["customfields"] != 'Y')
 	{
-		if(isset($_GET['post']) && $Blog->getSettingsData("postadtop") == 'Y')
+		if(isset($_GET['post']) && $blogSettings["postadtop"] == 'Y')
 		{
 			?>
 			<div class="blog_all_posts_ad">
-				<?php echo $Blog->getSettingsData("addata"); ?>
+				<?php echo $blogSettings["addata"]; ?>
 			</div>
 			<?php
 		}
-		if(isset($_GET['post']) && $Blog->getSettingsData("disquscount") == 'Y') { 
+		if(isset($_GET['post']) && $blogSettings["disquscount"] == 'Y') { 
 		?>
 			<a href="<?php echo $url; ?>/#disqus_thread" data-disqus-identifier="<?php echo $_GET['post']; ?>" style="float:right"></a>
 		<?php } ?>
 		<div class="blog_post_container">
 			<h3 class="blog_post_title"><a href="<?php echo $url; ?>" class="blog_post_link"><?php echo $post->title; ?></a></h3>
-			<?php if($Blog->getSettingsData("displaydate") == 'Y') {  ?>
+			<?php if($blogSettings["displaydate"] == 'Y') {  ?>
 				<p class="blog_post_date">
 					<?php echo $date; ?>
 				</p>
 			<?php } ?>
 			<p class="blog_post_content">
 				<?php
-				if(!isset($_GET['post']) && $Blog->getSettingsData("postthumbnail") == 'Y' && !empty($post->thumbnail)) 
+				if(!isset($_GET['post']) && $blogSettings["postthumbnail"] == 'Y' && !empty($post->thumbnail)) 
 				{ 
 					echo '<img src="'.$SITEURL.'data/uploads/'.$post->thumbnail.'" style="" class="blog_post_thumbnail" />';
 				}
-				if($excerpt == false || $excerpt == true && $Blog->getSettingsData("postformat") == "Y")
+				if($excerpt == false || $excerpt == true && $blogSettings["postformat"] == "Y")
 				{
 					echo html_entity_decode($post->content);
 				}
 				else
 				{
-					if($excerpt == true && $Blog->getSettingsData("postformat") == "N")
+					if($excerpt == true && $blogSettings["postformat"] == "N")
 					{
-						if($Blog->getSettingsData("excerptlength") == '')
+						if($blogSettings["excerptlength"] == '')
 						{
 							$excerpt_length = 250;
 						}
 						else
 						{
-							$excerpt_length = $Blog->getSettingsData("excerptlength");
+							$excerpt_length = $blogSettings["excerptlength"];
 						}
 						echo $Blog->create_excerpt(html_entity_decode($post->content), 0, $excerpt_length);
 					}
 				}
-				if(isset($_GET['post']))
+				if(!isset($_GET['post']) && $blogSettings['displayreadmore'] == 'Y')
 				{
-					echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; '.i18n_r(BLOGFILE.'/GO_BACK').'</a></p>';
+					echo '&nbsp;&nbsp;&nbsp<a href="" class="read_more_link">'.$blogSettings['readmore'].'</a>';
 				}
 				?>
 			</p>
-		</div>
 		<?php
-		if(!empty($post->tags) && $Blog->getSettingsData("displaytags") != 'N')
+		if(isset($_GET['post']))
+		{
+			echo '<p class="blog_go_back"><a href="javascript:history.back()">&lt;&lt; '.i18n_r(BLOGFILE.'/GO_BACK').'</a></p>';
+		}
+		if(!empty($post->tags) && $blogSettings["displaytags"] != 'N')
 		{
 			$tag_url = $Blog->get_blog_url('tag');
 			$tags = explode(",", $post->tags);
@@ -1153,30 +1167,31 @@ function show_blog_post($slug, $excerpt=false)
 			}
 			echo  '</p>';
 		}
-		if(isset($_GET['post']) && $Blog->getSettingsData("postadbottom") == 'Y')
+		echo '</div>';
+		if(isset($_GET['post']) && $blogSettings["postadbottom"] == 'Y')
 		{
 			?>
 			<div class="blog_all_posts_ad">
-				<?php echo $Blog->getSettingsData("addata"); ?>
+				<?php echo $blogSettings["addata"]; ?>
 			</div>
 			<?php
 		}
-		if(isset($_GET['post']) && $Blog->getSettingsData("addthis") == 'Y')
+		if(isset($_GET['post']) && $blogSettings["addthis"] == 'Y')
 		{
 			addThisTool();
 		}
-		if(isset($_GET['post']) && $Blog->getSettingsData("sharethis") == 'Y')
+		if(isset($_GET['post']) && $blogSettings["sharethis"] == 'Y')
 		{
 			shareThisTool();
 		}
-		if(isset($_GET['post']) && $Blog->getSettingsData("comments") == 'Y' && isset($_GET['post']))
+		if(isset($_GET['post']) && $blogSettings["comments"] == 'Y' && isset($_GET['post']))
 		{
 			disqusTool();
 		}
 	}
 	else
 	{	
-		$blog_code = (string) $Blog->getSettingsData("blogpage");
+		$blog_code = (string) $blogSettings["blogpage"];
 		eval(' ?>'.$blog_code.'<?php ');
 	}
 }
@@ -1250,15 +1265,17 @@ function show_blog_search()
 */  
 function show_blog_archives()
 {
+	global $blogSettings;
 	$Blog = new Blog;
 	$archives = $Blog->get_blog_archives();
 	if (!empty($archives)) 
 	{
 		echo '<ul>';
-		foreach ($archives as $archive=>$title) 
+		foreach ($archives as $archive => $archive_data) 
 		{
+			$post_count = ($blogSettings['archivepostcount'] == 'Y') ? ' ('.$archive_data['count'].')' : '';
 			$url = $Blog->get_blog_url('archive') . $archive;
-			echo "<li><a href=\"$url\">$title</a></li>";
+			echo "<li><a href=\"{$url}\">{$archive_data['title']} {$post_count}</a></li>";
 		}
 		echo '</ul>';
 	}
@@ -1297,11 +1314,11 @@ function show_blog_recent_posts($excerpt=false, $excerpt_length=null, $thumbnail
 {
 	$Blog = new Blog;
 	$posts = $Blog->listPosts(true, true);
-	global $SITEURL;
+	global $SITEURL,$blogSettings;
 	if (!empty($posts)) 
 	{
 		echo '<ul>';
-		$posts = array_slice($posts, 0, $Blog->getSettingsData("recentposts"), TRUE);
+		$posts = array_slice($posts, 0, $blogSettings["recentposts"], TRUE);
 		foreach ($posts as $file) 
 		{
 			$data = getXML($file['filename']);
@@ -1312,7 +1329,7 @@ function show_blog_recent_posts($excerpt=false, $excerpt_length=null, $thumbnail
 			{
 				if($excerpt_length == null)
 				{
-					$excerpt_length = $Blog->getSettingsData("excerptlength");
+					$excerpt_length = $blogSettings["excerptlength"];
 				}
 				$excerpt = $Blog->create_excerpt(html_entity_decode($data->content), 0, $excerpt_length);
 				if($thumbnail != null)
@@ -1349,10 +1366,13 @@ function show_blog_tag($tag)
 	foreach ($all_posts as $file) 
 	{
 		$data = getXML($file['filename']);
-		$tags = explode(',', $data->tags);
-		if (in_array($tag, $tags))
+		if(!empty($data->tags))
 		{
-			show_blog_post($file['filename'], true);	
+			$tags = explode(',', $data->tags);
+			if (in_array($tag, $tags))
+			{
+				show_blog_post($file['filename'], true);	
+			}
 		}
 	}
 }
@@ -1458,19 +1478,20 @@ function auto_import()
  */
 function show_posts_page($index=0) 
 {
+	global $blogSettings;
 	$Blog = new Blog;
 	$posts = $Blog->listPosts(true, true);
-	if($Blog->getSettingsData("allpostsadtop") == 'Y')
+	if($blogSettings["allpostsadtop"] == 'Y')
 	{
 		?>
 		<div class="blog_all_posts_ad">
-			<?php echo $Blog->getSettingsData("addata"); ?>
+			<?php echo $blogSettings["addata"]; ?>
 		</div>
 		<?php
 	}
 	if(!empty($posts))
 	{
-		$pages = array_chunk($posts, intval($Blog->getSettingsData("postperpage")), TRUE);
+		$pages = array_chunk($posts, intval($blogSettings["postperpage"]), TRUE);
 		if (is_numeric($index) && $index >= 0 && $index < sizeof($pages))
 		{
 			$posts = $pages[$index];
@@ -1496,7 +1517,7 @@ function show_posts_page($index=0)
 				// We know here that we have more than one page.
 				$maxPageIndex = sizeof($pages) - 1;
 				show_blog_navigation($index, $maxPageIndex, $count, $lastPostOfPage);
-				if($count == $Blog->getSettingsData("postsperpage"))
+				if($count == $blogSettings["postsperpage"])
 				{
 					$count = 0;
 				}
@@ -1507,11 +1528,11 @@ function show_posts_page($index=0)
 	{
 		echo '<p>' . i18n(BLOGFILE.'/NO_POSTS') . '</p>';
 	}
-	if($Blog->getSettingsData("allpostsadbottom") == 'Y')
+	if($blogSettings["allpostsadbottom"] == 'Y')
 	{
 		?>
 		<div class="blog_all_posts_ad">
-			<?php echo $Blog->getSettingsData("addata"); ?>
+			<?php echo $blogSettings["addata"]; ?>
 		</div>
 		<?php
 	}
@@ -1527,7 +1548,7 @@ function show_posts_page($index=0)
 */  
 function show_blog_navigation($index, $total, $count, $lastPostOfPage) 
 {
-
+	global $blogSettings;
 	$Blog = new Blog;
 	$url = $Blog->get_blog_url('page');
 
@@ -1541,7 +1562,7 @@ function show_blog_navigation($index, $total, $count, $lastPostOfPage)
 	?>
 		<div class="left">
 		<a href="<?php echo $url . ($index+1); ?>">
-			&larr; <?php echo $Blog->getSettingsData("nextpage"); ?>
+			&larr; <?php echo $blogSettings["nextpage"]; ?>
 		</a>
 		</div>
 	<?php	
@@ -1554,7 +1575,7 @@ function show_blog_navigation($index, $total, $count, $lastPostOfPage)
 	?>
 		<div class="right">
 		<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
-			<?php echo $Blog->getSettingsData("previouspage"); ?> &rarr;
+			<?php echo $blogSettings["previouspage"]; ?> &rarr;
 		</a>
 		</div>
 	<?php
@@ -1609,6 +1630,7 @@ function show_help_admin()
 
 function addThisTool()
 {
+	global $blogSettings;
 	$Blog = new Blog;
 	?>
 	<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
@@ -1620,7 +1642,7 @@ function addThisTool()
 	<a class="addthis_counter addthis_bubble_style"></a>
 	</div>
 	<script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
-	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=<?php echo $Blog->getSettingsData("addthisid"); ?>"></script>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=<?php echo $blogSettings["addthisid"]; ?>"></script>
 	<!-- AddThis Button END -->
 <?php
 }
@@ -1642,13 +1664,14 @@ function shareThisTool()
 
 function shareThisToolHeader()
 {
+	global $blogSettings;
 	$Blog = new Blog;
-	if($Blog->getSettingsData("sharethis") == 'Y') 
+	if($blogSettings["sharethis"] == 'Y') 
 	{
 		?>
 		<script type="text/javascript">var switchTo5x=true;</script>
 		<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
-		<script type="text/javascript">stLight.options({publisher: "<?php echo $Blog->getSettingsData("sharethisid"); ?>"}); </script>
+		<script type="text/javascript">stLight.options({publisher: "<?php echo $blogSettings["sharethisid"]; ?>"}); </script>
 		<?php
 	}
 
@@ -1664,12 +1687,13 @@ function feedBurnerTool()
 
 function disqusTool()
 {
+	global $blogSettings;
 	$Blog = new Blog;
 	?>
 	<div id="disqus_thread"></div>
 	<script type="text/javascript">
 	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-	    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname"); ?>'; // required: replace example with your forum shortname
+	    var disqus_shortname = '<?php echo $blogSettings["disqusshortname"]; ?>'; // required: replace example with your forum shortname
 		var disqus_identifier = '<?php echo $_GET['post']; ?>';
 
 	/* * * DON'T EDIT BELOW THIS LINE * * */
@@ -1679,10 +1703,10 @@ function disqusTool()
 	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 	})();
 	</script>
-	<?php if($Blog->getSettingsData("disquscount") == 'Y') { ?>
+	<?php if($blogSettings["disquscount"] == 'Y') { ?>
 		<script type="text/javascript">
 			/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-		    var disqus_shortname = '<?php echo $Blog->getSettingsData("disqusshortname") ?>'; // required: replace example with your forum shortname
+		    var disqus_shortname = '<?php echo $blogSettings["disqusshortname"] ?>'; // required: replace example with your forum shortname
 			var disqus_identifier = '<?php echo $_GET['post']; ?>';
 
 			/* * * DON'T EDIT BELOW THIS LINE * * */

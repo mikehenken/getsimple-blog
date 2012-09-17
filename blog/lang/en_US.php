@@ -217,6 +217,12 @@ $i18n = array(
     'BLOG_PAGE_DESC_LINE_3' => 'So to access a custom field you can do somthing like below',
     'BLOG_PAGE_DESC_LINE_2' => 'It will behave as if coding it directly into the plugin itself. The post data is passed via an object.',
     'BLOG_PAGE_DESC_LINE_1' => 'You are able to use html, php, xml and js in this textarea.',
-    'BLOG_PAGE_DESC_TITLE' => 'Custom Blog Page Help'
+    'BLOG_PAGE_DESC_TITLE' => 'Custom Blog Page Help',
     //END CUSTOM FIELDS
+    //Added Version 2.0
+    'BLOG_CREATE_EDIT_NO_TITLE' => 'A "Post Title" is required to add a blog post',
+    'BLOG_RETURN_TO_PREVIOUS_PAGE' => 'Return To Post',
+    'DISPLAY_READ_MORE_LINK' => 'Display "Read More" link',
+    'READ_MORE_LINK_TEXT' => '"Read More" Link Text',
+    'DISPLAY_POST_COUNT_ARCHIVES' => 'Dispaly Post Count In Archives'
 );
