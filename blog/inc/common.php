@@ -60,8 +60,12 @@ foreach($incFiles as $incFile)
 */
 # add_filter('content', 'blog_display_posts');
 add_action('index-pretemplate', 'blog_display_posts');
-add_action('theme-header', 'shareThisToolHeader');
 add_action('theme-header', 'includeRssFeed');
+global $blogSettings;
+if($blogSettings["sharethis"] == 'Y') 
+{
+	add_action('theme-header', 'shareThisToolHeader');
+}
 
 global $SITEURL;
 if(function_exists('register_script'))
