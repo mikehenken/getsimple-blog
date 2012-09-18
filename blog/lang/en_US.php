@@ -77,7 +77,7 @@ $i18n = array(
 	'FEED_DELETED' 			=> "Successfully Deleted Feed", 
 	'FEED_DELETE_ERROR' 	=> "Feed Could Not Be Deleted", 
 	'AUTO_IMPORTER_TITLE' 	=> "RSS Feed Auto Importer Cronjob Setup", 
-	'AUTO_IMPORTER_DESC' 	=> "You should be able to setup cronjobs through your web hosting admin interface. This plugin assume you know how. The below snippet is what your cron job should look like this. <br/><strong>lynx -dump http://yourdomain.com/index.php?id=blogslug&import=your_rss_import_password_above > /dev/null</strong>", 
+	'AUTO_IMPORTER_DESC' 	=> "You should be able to setup cronjobs through your web hosting admin interface. This plugin assume you know how. The below snippet is what your cron job should look like this.", 
 	'ADD_FEED' 				=> "Add RSS Feed", 
 	'MANAGE_FEEDS' 			=> "Add &amp; Manage RSS Feeds", 
 	'ADD_NEW_FEED' 			=> "Add New RSS Feed", 

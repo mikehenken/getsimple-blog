@@ -252,7 +252,7 @@ class Blog
 	* @todo clean up this method... Not happy about it's messiness!
 	* @return bool
 	*/  
-	public function savePost($post_data)
+	public function savePost($post_data, $auto_import=false)
 	{
 		if ($post_data['slug'] != '')
 		{
@@ -271,7 +271,7 @@ class Blog
 				unlink(BLOGPOSTSFOLDER . $post_data['current_slug'] . '.xml');
 			}
 			# do not overwrite existing files
-			if (file_exists($file)) 
+			if (file_exists($file) && $auto_import == false) 
 			{
 				$count = 0;
 				while(file_exists($file))

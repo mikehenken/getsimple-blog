@@ -218,6 +218,7 @@ function show_posts_admin()
 */  
 function show_settings_admin()
 {
+	global $SITEURL;
 	$Blog = new Blog;
 	if(isset($_POST['blog_settings']))
 	{
@@ -729,6 +730,8 @@ RewriteRule /?([A-Za-z0-9_-]+)/?$ index.php?id=$1 [QSA,L]
 	<h3><?php i18n(BLOGFILE.'/AUTO_IMPORTER_TITLE'); ?></h3>
 	<p>
 		<?php i18n(BLOGFILE.'/AUTO_IMPORTER_DESC'); ?>
+		<br/>
+		<strong>lynx -dump <?php echo $SITEURL; ?>index.php?id=<?php echo $Blog->getSettingsData("blogurl"); ?>&import=<?php echo $Blog->getSettingsData("autoimporterpass"); ?> > /dev/null</strong>
 	</p>
 <?php
 }
@@ -1458,7 +1461,7 @@ function auto_import()
 		        $post_data['thumbnail']     = '';
 		        $post_data['current_slug']  = '';
 
-		        $Blog->savePost($post_data);
+		        $Blog->savePost($post_data, true);
 		    }
 		}
 	}
@@ -1559,7 +1562,7 @@ function show_blog_navigation($index, $total, $count, $lastPostOfPage)
 	if($index < $total && $lastPostOfPage)
 	{
 	?>
-		<div class="left">
+		<div class="left blog-next-prev-link">
 		<a href="<?php echo $url . ($index+1); ?>">
 			&larr; <?php echo $blogSettings["nextpage"]; ?>
 		</a>
@@ -1572,7 +1575,7 @@ function show_blog_navigation($index, $total, $count, $lastPostOfPage)
 	if ($index > 0 && $lastPostOfPage)
 	{
 	?>
-		<div class="right">
+		<div class="right blog-next-prev-link">
 		<a href="<?php echo ($index > 1) ? $url . ($index-1) : substr($url, 0, -6); ?>">
 			<?php echo $blogSettings["previouspage"]; ?> &rarr;
 		</a>
