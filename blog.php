@@ -19,7 +19,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.3', 		
+	'1.3.1', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -1436,7 +1436,7 @@ function auto_import()
 	{
 		ini_set("memory_limit","350M");
 
-		require_once(BLOGPLUGINFOLDER.'magpierss/rss_fetch.inc');
+		require_once(BLOGPLUGINFOLDER.'inc/magpierss/rss_fetch.inc');
 
 		$rss_feed_file = getXML(BLOGRSSFILE);
 		foreach($rss_feed_file->rssfeed as $the_fed)
@@ -1517,7 +1517,7 @@ function show_posts_page($index=0)
 				// We know here that we have more than one page.
 				$maxPageIndex = sizeof($pages) - 1;
 				show_blog_navigation($index, $maxPageIndex, $count, $lastPostOfPage);
-				if($count == $blogSettings["postsperpage"])
+				if($count == $blogSettings["postperpage"])
 				{
 					$count = 0;
 				}

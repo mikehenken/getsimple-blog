@@ -140,7 +140,7 @@ class Blog
 					$posts[$count]['date'] = (string) $data->date;
 					$posts[$count]['category'] = (string) $data->category;
 					$posts[$count]['tags'] = (string) $data->tags;
-					if(isset($data->author)) { $posts[$count]['authur'] = (string) $data->author; }
+					if(isset($data->author)) { $posts[$count]['author'] = (string) $data->author; }
 					$count++;
 				}
 				if($sort_dates != false && $array != false)
