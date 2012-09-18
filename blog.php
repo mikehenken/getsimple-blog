@@ -19,7 +19,7 @@ i18n_merge($thisfile) || i18n_merge($LANG);
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.3.1', 		
+	'1.3.2', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),
@@ -222,7 +222,6 @@ function show_settings_admin()
 	if(isset($_POST['blog_settings']))
 	{
 		$prettyurls = isset($_POST['pretty_urls']) ? $_POST['pretty_urls'] : '';
-		$blog_page = $_POST['blog_page'];
 		$blog_settings_array = array('blogurl' => $_POST['blog_url'],
 									 'lang' => $_POST['language'],
 									 'excerptlength' => $_POST['excerpt_length'],
@@ -255,7 +254,7 @@ function show_settings_admin()
 									 'csscode' => $_POST['css_code'],
 									 'rssfeedposts' => $_POST['rss_feed_num_posts'],
 									 'customfields' => $_POST['custom_fields'],
-									 'blogpage' => $blog_page,
+									 'blogpage' => $_POST['blog_page'],
 									 'displayreadmore' => $_POST['display_read_more'],
 									 'readmore' => $_POST['read_more_text'],
 									 'archivepostcount' => $_POST['display_archives_post_count']);
@@ -1666,15 +1665,11 @@ function shareThisToolHeader()
 {
 	global $blogSettings;
 	$Blog = new Blog;
-	if($blogSettings["sharethis"] == 'Y') 
-	{
-		?>
-		<script type="text/javascript">var switchTo5x=true;</script>
-		<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
-		<script type="text/javascript">stLight.options({publisher: "<?php echo $blogSettings["sharethisid"]; ?>"}); </script>
-		<?php
-	}
-
+	?>
+	<script type="text/javascript">var switchTo5x=true;</script>
+	<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+	<script type="text/javascript">stLight.options({publisher: "<?php echo $blogSettings["sharethisid"]; ?>"}); </script>
+	<?php
 }
 
 function feedBurnerTool()

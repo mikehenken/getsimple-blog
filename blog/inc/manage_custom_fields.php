@@ -30,11 +30,11 @@ function show_custom_fields()
  				{
  					foreach($customFields['options'] as $customOptionsField)
 	 				{
-	 					get_custom_fields_list('sortable', $count_options, $customOptionsField, 'options');
+	 					get_blog_custom_fields_list('sortable', $count_options, $customOptionsField, 'options');
 	 					$count_options++;
 	 				}
  				}
-				 get_custom_fields_list('hidden', $count_options, null, 'options'); 
+				 get_blog_custom_fields_list('hidden', $count_options, null, 'options'); 
  				?>
 			<tr>
 				<td colspan="4"><a href="#" class="add_field">
@@ -64,11 +64,11 @@ function show_custom_fields()
  				{
 	 				foreach($customFields['main'] as $customMainField)
 	 				{
-	 					get_custom_fields_list('sortable', $count_main, $customMainField, 'main');
+	 					get_blog_custom_fields_list('sortable', $count_main, $customMainField, 'main');
 	 					$count_main++;
 	 				}
  				}
-				 get_custom_fields_list('hidden_main', $count_main, null, 'main'); 
+				 get_blog_custom_fields_list('hidden_main', $count_main, null, 'main'); 
 			?>
 			<tr>
 				<td colspan="4"><a href="#" class="add_main_field">
@@ -138,7 +138,7 @@ function show_custom_fields()
 <?php
 }
 
-function get_custom_fields_list($class='', $count=0, $customField=null, $area='options')
+function get_blog_custom_fields_list($class='', $count=0, $customField=null, $area='options')
 {
 	$customFields  = new customFields;
 	$area_un = $area;

@@ -82,14 +82,26 @@ class Blog
 									 'displaytags' => 'Y',
 									 'rsstitle' => '',
 									 'rssdescription' => '',
-									 'comments' => '',
 									 'postthumbnail' => 'N',
 									 'displaydate' => 'Y',
 									 'previouspage' => i18n_r(BLOGFILE.'/NEWER_POSTS'),
 									 'nextpage' => i18n_r(BLOGFILE.'/OLDER_POSTS'),
 									 'displaycss' => 'Y',
 									 'csscode' => $css_code,
-									 'rssfeedposts' => '10');
+									 'rssfeedposts' => '10',
+									 'comments'  => '',
+									 'sharethis'  => '',
+									 'addthis'  => '',
+									 'addata' => '',
+									 'allpostsadtop' => '',
+									 'allpostsadbottom' => '',
+									 'postadtop' => '',
+									 'postadbottom' => '',
+									 'customfields' => '',
+									 'blogpage' => '',
+									 'displayreadmore' => '',
+									 'readmore' => '',
+									 'archivepostcount' => '');
 			$create_rss_file = $this->saveSettings($settings_array);
 			if($create_rss_file)
 			{
