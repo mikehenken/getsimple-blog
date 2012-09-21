@@ -8,7 +8,11 @@ $i18n = array(
 	'POST_DELETED' 			=> "Post Successfully Deleted",
 	'POST_DELETED_ERROR' 	=> "Post Could Not Be Deleted!",
 	'CATDELETED' 			=> "Category Successfully Deleted",
+<<<<<<< HEAD
 	'CATCREATED' 			=> "Category Successfully Created",
+=======
+	'CATCREATED'       		=> "Category Successfully Created",
+>>>>>>> Version 1.4
 	'HELP' 					=> ">Help",
 	'ALL_FAQ' 				=> ">All Posts",
 	'POST_SLUG'				=> "Slug/URL",
@@ -96,6 +100,8 @@ $i18n = array(
 	'HELP_SEARCH' 			=> "Display blog search bar", 
 	'HELP_ARCHIVES' 		=> "Display blog archives", 
 	'HELP_RECENT' 			=> "Show your blogs most recent posts", 
+	'HELP_RECENT_2' 		=> "This function has 4 <strong>optional</strong> available parameters", 
+	'HELP_RECENT_3' 		=> "Usage Example (display excert, default excert length, display thumbnail and display read more link)", 
 	'RSS_TITLE' 			=> "RSS Feed Title", 
 	'RSS_DESCRIPTION' 		=> "RSS Feed Description", 
 	'RSS_LOCATION' 			=> "Below is your blogs RSS feed", 
@@ -108,9 +114,6 @@ $i18n = array(
 	'FRONT_END_FUNCTIONS' 	=> "Front End Functions", 
 	'READ_FULL_ARTICLE' 	=> "Read The Full Article", // Used for rss feed importer
 	'GO_BACK' 				=> "Go back to the previous page", 
-	'' 		=> "", 
-	'' 		=> "", 
-	'' 		=> "", 
 	//Error/Success Messages  (_construct())
 	'DATA_BLOG_DIR' 		=> "data/blog Directory Succesfully Created", 
 	'DATA_FILE_ERROR' 		=> "File could not be written!", 
@@ -158,7 +161,7 @@ $i18n = array(
 	'DYNAMIC_RSS_LOCATION' => 'Dynamic RSS Feed Location (Generates RSS feed on the fly)',
 	//ADDED VERSION 1.2
 	'CUSTOM_FIELDS' => 'Custom Fields',
-	//CUSTOM FIELDS ADDED v2.0
+	//CUSTOM FIELDS ADDED v2.0+
 	'MANAGE' => 'Manage',
 	'CHECKBOX' => "Check box", 
     'CUSTOMFIELDS_DESCR' => "This plugin allows you to specify custom fields which are displayed when you edit a page.", 
@@ -218,11 +221,20 @@ $i18n = array(
     'BLOG_PAGE_DESC_LINE_2' => 'It will behave as if coding it directly into the plugin itself. The post data is passed via an object.',
     'BLOG_PAGE_DESC_LINE_1' => 'You are able to use html, php, xml and js in this textarea.',
     'BLOG_PAGE_DESC_TITLE' => 'Custom Blog Page Help',
+    'CUSTOM_FIELDS_OPTIONS_AREA' => 'Options Area (Options custom fields will be displayed in the "Post Options" section)',
+    'CUSTOM_FIELDS_MAIN_AREA' => 'Main Area (Main custom fields will be under the "Post Options" section)',
+    'CUSTOM_FIELDS_OPTIONS_AREA' => 'Custom Blog Page Help',
     //END CUSTOM FIELDS
     //Added Version 2.0
     'BLOG_CREATE_EDIT_NO_TITLE' => 'A "Post Title" is required to add a blog post',
     'BLOG_RETURN_TO_PREVIOUS_PAGE' => 'Return To Post',
     'DISPLAY_READ_MORE_LINK' => 'Display "Read More" link',
     'READ_MORE_LINK_TEXT' => '"Read More" Link Text',
+<<<<<<< HEAD
     'DISPLAY_POST_COUNT_ARCHIVES' => 'Display Post Count In Archives'
+=======
+    'DISPLAY_POST_COUNT_ARCHIVES' => 'Display Post Count In Archives',
+    'BLOG_PAGE_RECOM' => 'It is recommended you view the show_blog_post() function in plugins/blog/inc/frontEndFunctions.php to see how best to implement a custom blog page.',
+    'BLOG_PRETTY_NOTICE' => 'You need to turn on prettyurls in GetSimple before instructions will show here'
+>>>>>>> Version 1.4
 );

@@ -101,7 +101,9 @@ class Blog
 									 'blogpage' => '',
 									 'displayreadmore' => '',
 									 'readmore' => '',
-									 'archivepostcount' => '');
+									 'archivepostcount' => '',
+									 'disqusshortname' => '',
+									 'disquscount' => '');
 			$create_rss_file = $this->saveSettings($settings_array);
 			if($create_rss_file)
 			{
@@ -164,6 +166,13 @@ class Blog
 		}
 	}
 
+	/** 
+	* Filter Blog Posts
+	* 
+	* @param $filter string The node to filter by 
+	* @param $value string The value to check the filter
+	* @return array the matched posts
+	*/  
 	public function filterPosts($filter, $value)
 	{
 		$posts = $this->listPosts(true, true);
@@ -896,10 +905,5 @@ class Blog
 		{
 			return $content;
 		}
-	}
-
-	public function getIndPostData($data, $node)
-	{
-
 	}
 }

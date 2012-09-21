@@ -16,7 +16,6 @@ if(!function_exists('getXML'))
  * 
  */
 define('BLOGPLUGINFOLDER', GSPLUGINPATH.'blog/');
-define('BLOGPLUGINNAME', i18n_r(BLOGFILE.'/PLUGIN_TITLE'));
 define('BLOGPLUGINID', 'blog');
 
 
@@ -169,12 +168,23 @@ function showAdminNav()
 	<?php
 }
 
+/** 
+* Format a date
+* 
+* @param $date string The date to format 
+* @return void
+*/  
 function formatPostDate($date)
 {
 	$Blog = new Blog;
 	return $Blog->get_locale_date(strtotime($date), '%b %e, %Y');
 }
 
+/** 
+* Include RSS Feed (Link goes is included in header of front end pages)
+* 
+* @return void
+*/  
 function includeRssFeed()
 {
 	global $SITEURL;
@@ -183,6 +193,7 @@ function includeRssFeed()
 	$blogTitle = htmlspecialchars($blog->getSettingsData("rsstitle"));
 	echo '<link href="'.$locationOfFeed.'" rel="alternate" type="application/rss+xml" title="'.$blogTitle.'">';
 }
+
 if(function_exists('add_mu_permission'))
 {
 	add_mu_permission('blogsettings', 'Blog Settings');
@@ -201,4 +212,34 @@ if(!function_exists('check_user_permission'))
 		return true;
 	}
 }
+if(!function_exists('check_user_permissions'))
+{
+	function check_user_permissions()
+	{
+		$blogUserPermissions = array();
+		$blogUserPermissions['blogsettings'] = true;
+		$blogUserPermissions['blogeditpost'] = true;
+		$blogUserPermissions['blogcreatepost'] = true;
+		$blogUserPermissions['blogcategories'] = true;
+		$blogUserPermissions['blogrssimporter'] = true;
+		$blogUserPermissions['bloghelp'] = true;
+		$blogUserPermissions['blogcustomfields'] = true;
+		$blogUserPermissions['blogdeletepost'] = true;
+		return $blogUserPermissions;
+	}
+}
+
+/** 
+* Get Blog Permissions
+* Gets permissions for areas of admin panel for blog plugin - These are defined using the Multi User Plugin
+* 
+* @return void
+*/  
+function getBlogUserPermissions()
+{
+	global $blogUserPermissions;
+	$current_user = get_cookie('GS_ADMIN_USERNAME');
+	$blogUserPermissions = check_user_permissions($current_user);
+}
+
 ?>
