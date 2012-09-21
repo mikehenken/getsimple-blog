@@ -8,7 +8,7 @@ $i18n = array(
 	'POST_DELETED' 			=> "Post Successfully Deleted",
 	'POST_DELETED_ERROR' 	=> "Post Could Not Be Deleted!",
 	'CATDELETED' 			=> "Category Successfully Deleted",
-	'CATCREATED' 			=> "Successfully Created",
+	'CATCREATED' 			=> "Category Successfully Created",
 	'HELP' 					=> ">Help",
 	'ALL_FAQ' 				=> ">All Posts",
 	'POST_SLUG'				=> "Slug/URL",
@@ -224,5 +224,5 @@ $i18n = array(
     'BLOG_RETURN_TO_PREVIOUS_PAGE' => 'Return To Post',
     'DISPLAY_READ_MORE_LINK' => 'Display "Read More" link',
     'READ_MORE_LINK_TEXT' => '"Read More" Link Text',
-    'DISPLAY_POST_COUNT_ARCHIVES' => 'Dispaly Post Count In Archives'
+    'DISPLAY_POST_COUNT_ARCHIVES' => 'Display Post Count In Archives'
 );
