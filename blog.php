@@ -1213,7 +1213,7 @@ function show_blog_categories()
 		echo '<li><a href="'.$url.$category.'">'.$category.'</a></li>';
 	}
 	echo '<li><a href="'.$url.'">';
-	i18n(BLOGFILE.'/ALL_CATEOGIRES');
+	i18n(BLOGFILE.'/ALL_CATEGORIES');
 	echo '</a></li>';
 }
 
