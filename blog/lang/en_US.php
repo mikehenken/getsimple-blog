@@ -8,11 +8,7 @@ $i18n = array(
 	'POST_DELETED' 			=> "Post Successfully Deleted",
 	'POST_DELETED_ERROR' 	=> "Post Could Not Be Deleted!",
 	'CATDELETED' 			=> "Category Successfully Deleted",
-<<<<<<< HEAD
-	'CATCREATED' 			=> "Category Successfully Created",
-=======
 	'CATCREATED'       		=> "Category Successfully Created",
->>>>>>> Version 1.4
 	'HELP' 					=> ">Help",
 	'ALL_FAQ' 				=> ">All Posts",
 	'POST_SLUG'				=> "Slug/URL",
@@ -230,11 +226,7 @@ $i18n = array(
     'BLOG_RETURN_TO_PREVIOUS_PAGE' => 'Return To Post',
     'DISPLAY_READ_MORE_LINK' => 'Display "Read More" link',
     'READ_MORE_LINK_TEXT' => '"Read More" Link Text',
-<<<<<<< HEAD
-    'DISPLAY_POST_COUNT_ARCHIVES' => 'Display Post Count In Archives'
-=======
     'DISPLAY_POST_COUNT_ARCHIVES' => 'Display Post Count In Archives',
     'BLOG_PAGE_RECOM' => 'It is recommended you view the show_blog_post() function in plugins/blog/inc/frontEndFunctions.php to see how best to implement a custom blog page.',
     'BLOG_PRETTY_NOTICE' => 'You need to turn on prettyurls in GetSimple before instructions will show here'
->>>>>>> Version 1.4
 );
