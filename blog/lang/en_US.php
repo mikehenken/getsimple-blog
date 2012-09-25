@@ -217,8 +217,10 @@ $i18n = array(
     'BLOG_PAGE_DESC_LINE_2' => 'It will behave as if coding it directly into the plugin itself. The post data is passed via an object.',
     'BLOG_PAGE_DESC_LINE_1' => 'You are able to use html, php, xml and js in this textarea.',
     'BLOG_PAGE_DESC_TITLE' => 'Custom Blog Page Help',
-    'CUSTOM_FIELDS_OPTIONS_AREA' => 'Options Area (Options custom fields will be displayed in the "Post Options" section)',
-    'CUSTOM_FIELDS_MAIN_AREA' => 'Main Area (Main custom fields will be under the "Post Options" section)',
+    'CUSTOM_FIELDS_OPTIONS_AREA' => 'Options Area',
+    'OPTIONS_AREA_DESCRP'		=> '(Options custom fields will be displayed in the "Post Options" section)',
+    'CUSTOM_FIELDS_MAIN_AREA'	=> 'Main Area',
+    'MAIN_AREA_DESCRP'			=> '(Main custom fields will be under the "Post Options" section)',
     'CUSTOM_FIELDS_OPTIONS_AREA' => 'Custom Blog Page Help',
     //END CUSTOM FIELDS
     //Added Version 2.0
