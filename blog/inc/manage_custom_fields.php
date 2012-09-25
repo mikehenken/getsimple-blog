@@ -16,7 +16,11 @@ function show_custom_fields()
 	</p>
 
 	<form method="post" id="customfieldsForm">
-	 	<h3 style="font-size:15px;"><?php i18n(BLOGFILE.'/CUSTOM_FIELDS_OPTIONS_AREA'); ?></h3>
+	 	<h3 style="font-size:15px;">
+	 		<?php i18n(BLOGFILE.'/CUSTOM_FIELDS_OPTIONS_AREA'); ?>
+	 		<br /> 
+	 		<span style="font-size:12px;color:#666;"><?php i18n(BLOGFILE.'/OPTIONS_AREA_DESCRP'); ?></span>
+	 	</h3>
 		<table id="editfields" class="edittable highlight options_cf">
 			<thead>
 				<tr>
@@ -50,7 +54,11 @@ function show_custom_fields()
 				</tr>
 			</tbody>
 		</table>
-	 	<h3 style="font-size:15px;"><?php i18n(BLOGFILE.'/CUSTOM_FIELDS_MAIN_AREA'); ?></h3>
+	 	<h3 style="font-size:15px;">
+	 		<?php i18n(BLOGFILE.'/CUSTOM_FIELDS_MAIN_AREA'); ?>
+	 		<br />
+	 		<span style="font-size:12px;color:#666;"><?php i18n(BLOGFILE.'/MAIN_AREA_DESCRP'); ?></span>
+	 	</h3>
 		<table id="editfields" class="edittable highlight main_cf">
 			<thead>
 				<tr>
