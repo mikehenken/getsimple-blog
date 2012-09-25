@@ -225,14 +225,11 @@ $i18n = array(
     'BLOG_PAGE_DESC_LINE_3' => "Pour récupérer un champ personnalisé, vous pouvez procéder comme ci-dessous",
     'BLOG_PAGE_DESC_LINE_2' => "Il se comporte comme si celui-ci était codé directement dans le plugin. Les données postées sont passées dans un objet.",
     'BLOG_PAGE_DESC_LINE_1' => "Vous pouvez utiliser du html, php, xml et js dans cette zone de texte.",
-    'BLOG_PAGE_DESC_TITLE' => "Aide personnalisée des pages du Blog",
-//    'CUSTOM_FIELDS_OPTIONS_AREA' => "Options Area (Options custom fields will be displayed in the \"Post Options\" section)",
-//    'CUSTOM_FIELDS_MAIN_AREA' => "Main Area (Main custom fields will be under the \"Post Options\" section)",
+    'BLOG_PAGE_DESC_TITLE' => "Aide à la personnalisation des pages du Blog",
     'CUSTOM_FIELDS_OPTIONS_AREA' => "Zone Options",
     'OPTIONS_AREA_DESCRP'	=> "(Les Champs Personnalisés créés dans la zone Options seront afficher dans la section \"Options du Billet\")",
     'CUSTOM_FIELDS_MAIN_AREA'	=> "Zone Principale",
     'MAIN_AREA_DESCRP'		=> "(Les Champs Personnalisés créés dans la zone Principale seront afficher sous la section principale du Billet)",
-    'CUSTOM_FIELDS_OPTIONS_AREA' => "Aide personnalisée des pages du Blog",
     //END CUSTOM FIELDS
     //Added Version 2.0
     'BLOG_CREATE_EDIT_NO_TITLE' => "Un \"Titre de Billet\" est requis pour ajouter un Billet",

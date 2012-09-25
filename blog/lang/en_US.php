@@ -221,7 +221,6 @@ $i18n = array(
     'OPTIONS_AREA_DESCRP'		=> '(Options custom fields will be displayed in the "Post Options" section)',
     'CUSTOM_FIELDS_MAIN_AREA'	=> 'Main Area',
     'MAIN_AREA_DESCRP'			=> '(Main custom fields will be under the "Post Options" section)',
-    'CUSTOM_FIELDS_OPTIONS_AREA' => 'Custom Blog Page Help',
     //END CUSTOM FIELDS
     //Added Version 2.0
     'BLOG_CREATE_EDIT_NO_TITLE' => 'A "Post Title" is required to add a blog post',
