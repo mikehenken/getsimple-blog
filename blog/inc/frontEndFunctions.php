@@ -23,7 +23,7 @@ function show_blog_post($slug, $excerpt=false)
 			</div>
 			<?php
 		}
-		if(isset($_GET['post']) && $blogSettings["disquscount"] == 'Y') { 
+		if(isset($_GET['post']) && isset($blogSettings["disquscount"]) && $blogSettings["disquscount"] == 'Y') { 
 		?>
 			<a href="<?php echo $url; ?>/#disqus_thread" data-disqus-identifier="<?php echo $_GET['post']; ?>" style="float:right"></a>
 		<?php } ?>
@@ -647,5 +647,17 @@ function get_blog_title($echo=true)
 	else 
 	{
 		return $myVar;
+	}
+}
+
+function set_post_description()
+{
+	global $metad, $post, $blogSettings;
+	$Blog = new Blog;
+	if($blogSettings["postdescription"] == 'Y')
+	{
+		$excerpt_length = ($blogSettings["excerptlength"] == '') ? 150 : $blogSettings["excerptlength"];
+
+		$metad = $Blog->create_excerpt(html_entity_decode($post->content), 0, $excerpt_length);
 	}
 }

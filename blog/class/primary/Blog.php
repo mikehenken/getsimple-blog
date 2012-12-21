@@ -103,7 +103,8 @@ class Blog
 									 'readmore' => '',
 									 'archivepostcount' => '',
 									 'disqusshortname' => '',
-									 'disquscount' => '');
+									 'disquscount' => '',
+									 'postdescription' => '');
 			$create_rss_file = $this->saveSettings($settings_array);
 			if($create_rss_file)
 			{
@@ -672,13 +673,13 @@ class Blog
 	public function create_excerpt($content, $start, $maxchars)
 	{
 		$maxchars = (int) $maxchars;
+		$content = htmlspecialchars_decode(strip_tags(strip_decode($content)));
 		$content = substr($content, $start, $maxchars);
 		$pos = strrpos($content, " ");
 		if ($pos>0) 
 		{
 			$content = substr($content, $start, $pos);
 		}
-		$content = htmlspecialchars_decode(strip_tags(strip_decode($content)));
 		$content = str_replace(i18n_r(BLOGFILE.'/READ_FULL_ARTICLE'), "", $content);
 		return $content;
 	}
@@ -692,23 +693,26 @@ class Blog
 	{
 		$posts = $this->listPosts();
 		$archives = array();
-		foreach ($posts as $file) 
+		if(!empty($posts))
 		{
-			$data = getXML($file);
-			$date = strtotime($data->date);
-			$title = $this->get_locale_date($date, '%B %Y');
-			$archive = date('Ym', $date);
-			if (!array_key_exists($archive, $archives))
+			foreach ($posts as $file) 
 			{
-				$archives[$archive]['title'] = $title;
-				$archives[$archive]['count'] = 1;
+				$data = getXML($file);
+				$date = strtotime($data->date);
+				$title = $this->get_locale_date($date, '%B %Y');
+				$archive = date('Ym', $date);
+				if (!array_key_exists($archive, $archives))
+				{
+					$archives[$archive]['title'] = $title;
+					$archives[$archive]['count'] = 1;
+				}
+				else
+				{
+					$archives[$archive]['count'] = $archives[$archive]['count'] + 1;
+				}
 			}
-			else
-			{
-				$archives[$archive]['count'] = $archives[$archive]['count'] + 1;
-			}
+			krsort($archives);
 		}
-		krsort($archives);
 		return $archives;
 	}
 

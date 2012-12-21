@@ -60,6 +60,9 @@ foreach($incFiles as $incFile)
 # add_filter('content', 'blog_display_posts');
 add_action('index-pretemplate', 'blog_display_posts');
 add_action('theme-header', 'includeRssFeed');
+add_action('index-pretemplate', 'set_post_description');
+add_action('common', 'checkPermissions');
+
 global $blogSettings;
 if($blogSettings["sharethis"] == 'Y') 
 {
@@ -194,38 +197,41 @@ function includeRssFeed()
 	echo '<link href="'.$locationOfFeed.'" rel="alternate" type="application/rss+xml" title="'.$blogTitle.'">';
 }
 
-if(function_exists('add_mu_permission'))
+function checkPermissions()
 {
-	add_mu_permission('blogsettings', 'Blog Settings');
-	add_mu_permission('blogeditpost', 'Blog Edit Post');
-	add_mu_permission('blogcreatepost', 'Blog Create Post');
-	add_mu_permission('blogrssimporter', 'Blog RSS Importer');
-	add_mu_permission('blogcategories', 'Blog Categories');
-	add_mu_permission('bloghelp', 'Blog Help');
-	add_mu_permission('blogcustomfields', 'Blog Custom Fields');
-	add_mu_permission('blogdeletepost', 'Blog Delete Post');
-}
-if(!function_exists('check_user_permission'))
-{
-	function check_user_permission()
+	if(function_exists('add_mu_permission'))
 	{
-		return true;
+		add_mu_permission('blogsettings', 'Blog Settings');
+		add_mu_permission('blogeditpost', 'Blog Edit Post');
+		add_mu_permission('blogcreatepost', 'Blog Create Post');
+		add_mu_permission('blogrssimporter', 'Blog RSS Importer');
+		add_mu_permission('blogcategories', 'Blog Categories');
+		add_mu_permission('bloghelp', 'Blog Help');
+		add_mu_permission('blogcustomfields', 'Blog Custom Fields');
+		add_mu_permission('blogdeletepost', 'Blog Delete Post');
 	}
-}
-if(!function_exists('check_user_permissions'))
-{
-	function check_user_permissions()
+	if(!function_exists('check_user_permission'))
 	{
-		$blogUserPermissions = array();
-		$blogUserPermissions['blogsettings'] = true;
-		$blogUserPermissions['blogeditpost'] = true;
-		$blogUserPermissions['blogcreatepost'] = true;
-		$blogUserPermissions['blogcategories'] = true;
-		$blogUserPermissions['blogrssimporter'] = true;
-		$blogUserPermissions['bloghelp'] = true;
-		$blogUserPermissions['blogcustomfields'] = true;
-		$blogUserPermissions['blogdeletepost'] = true;
-		return $blogUserPermissions;
+		function check_user_permission()
+		{
+			return true;
+		}
+	}
+	if(!function_exists('check_user_permissions'))
+	{
+		function check_user_permissions()
+		{
+			$blogUserPermissions = array();
+			$blogUserPermissions['blogsettings'] = true;
+			$blogUserPermissions['blogeditpost'] = true;
+			$blogUserPermissions['blogcreatepost'] = true;
+			$blogUserPermissions['blogcategories'] = true;
+			$blogUserPermissions['blogrssimporter'] = true;
+			$blogUserPermissions['bloghelp'] = true;
+			$blogUserPermissions['blogcustomfields'] = true;
+			$blogUserPermissions['blogdeletepost'] = true;
+			return $blogUserPermissions;
+		}
 	}
 }
 

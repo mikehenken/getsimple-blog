@@ -8,19 +8,19 @@ require_once("blog/inc/common.php");
 if(file_exists(BLOGSETTINGS))
 {
 	$settings_lang = getXML(BLOGSETTINGS);
-	$LANG = $settings_lang->lang;
+	$GSBLOGLANG = $settings_lang->lang;
 }
 else
 {
-	$LANG = "en_US";
+	$GSBLOGLANG = "en_US";
 }
-i18n_merge($thisfile) || i18n_merge($LANG);
+i18n_merge($thisfile) || i18n_merge($GSBLOGLANG);
 
 # register plugin
 register_plugin(
 	$thisfile, // ID of plugin, should be filename minus php
 	i18n_r(BLOGFILE.'/PLUGIN_TITLE'), 	
-	'1.4.2', 		
+	'1.5', 		
 	'Mike Henken',
 	'http://michaelhenken.com/', 
 	i18n_r(BLOGFILE.'/PLUGIN_DESC'),

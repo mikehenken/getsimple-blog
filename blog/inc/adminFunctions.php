@@ -85,7 +85,8 @@ function show_settings_admin()
 									 'blogpage' => $_POST['blog_page'],
 									 'displayreadmore' => $_POST['display_read_more'],
 									 'readmore' => $_POST['read_more_text'],
-									 'archivepostcount' => $_POST['display_archives_post_count']);
+									 'archivepostcount' => $_POST['display_archives_post_count'],
+									 'postdescription' => $_POST['post_description']);
 		$Blog->saveSettings($blog_settings_array);
 	}
 	?>
@@ -238,6 +239,17 @@ function show_settings_admin()
 			<p>
 				<label for="read_more_text"><?php i18n(BLOGFILE.'/READ_MORE_LINK_TEXT'); ?>:</label>
 				<input class="text" type="text" name="read_more_text" value="<?php echo $Blog->getSettingsData("readmore"); ?>" />
+			</p>
+		</div>
+		<div class="clear"></div>
+		<div class="leftsec">
+			<p>
+				<label for="post_description"><?php i18n(BLOGFILE.'/POST_DESCRIPTION'); ?>:</label>
+				<input name="post_description" type="radio" value="Y" <?php if ($Blog->getSettingsData("postdescription") == 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/YES'); ?>
+				<span style="margin-left: 30px;">&nbsp;</span>
+				<input name="post_description" type="radio" value="N" <?php if ($Blog->getSettingsData("postdescription") != 'Y') echo 'checked="checked"'; ?> style="vertical-align: middle;" />
+				&nbsp;<?php i18n(BLOGFILE.'/NO'); ?>
 			</p>
 		</div>
 		<div class="clear"></div>
@@ -595,6 +607,7 @@ function editPost($post_id=null)
 	?>
 	<link href="../plugins/blog/inc/uploader/client/fileuploader.css" rel="stylesheet" type="text/css">
 	<script src="../plugins/blog/inc/uploader/client/fileuploader.js" type="text/javascript"></script>
+	<noscript><style>#metadata_window {display:block !important} </style></noscript>
 	<h3 class="floated">
 	  <?php
 	  if ($post_id == null)
@@ -791,10 +804,9 @@ function edit_rss()
 function category_dropdown($current_category=null)
 {
 	$category_file = getXML(BLOGCATEGORYFILE);	
-	$current_category = to7bit($current_category, 'UTF-8');
 	foreach($category_file->category as $category_item)	
 	{		
-		$category_item = to7bit($category_item, 'UTF-8');
+		$category_item = (string) $category_item;
 		if($category_item == $current_category)
 		{
 			echo '<option value="'.$current_category.'" selected>'.$current_category.'</option>';	

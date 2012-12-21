@@ -229,5 +229,6 @@ $i18n = array(
     'READ_MORE_LINK_TEXT' => '"Read More" Link Text',
     'DISPLAY_POST_COUNT_ARCHIVES' => 'Display Post Count In Archives',
     'BLOG_PAGE_RECOM' => 'It is recommended you view the show_blog_post() function in plugins/blog/inc/frontEndFunctions.php to see how best to implement a custom blog page.',
-    'BLOG_PRETTY_NOTICE' => 'You need to turn on prettyurls in GetSimple before instructions will show here'
+    'BLOG_PRETTY_NOTICE' => 'You need to turn on prettyurls in GetSimple before instructions will show here',
+    'POST_DESCRIPTION' => 'Show post excerpt in meta description'
 );
